@@ -15,7 +15,7 @@
   --bg:#F7F4EE; --surface:#FFFFFF; --surface-2:#F2EEE6; --ink:#171A1F; --ink-2:#4B5563; --muted:#8A9099; --line:#E6E1D7;
   --primary:#E85D2A; --primary-ink:#fff; --primary-soft:#FCE8DE;
   --lunch:#2F5BB7; --cafe:#8A5A3B; --dog:#D9453A; --shop:#1F8A70; --dinner:#6D3F9E;
-  --now:#F2C230; --me:#1A73E8; --route:#1F2937; --line3:#EF7C1C;
+  --now:#F2C230; --me:#1A73E8; --route:#1F2937; --plan:#4B5563; --line3:#EF7C1C;
   --warn-bg:#FFF3D6; --warn-ink:#7A5200;
   --shadow:0 8px 28px rgba(23,26,31,.14); --shadow-s:0 2px 8px rgba(23,26,31,.12);
   --r:18px;
@@ -23,13 +23,13 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#121417; --surface:#1B1E23; --surface-2:#23272E; --ink:#F1F2F4; --ink-2:#C2C7CF; --muted:#8A9099; --line:#2E333B;
-    --primary:#F06B38; --primary-soft:#3A251B; --route:#E5E7EB; --warn-bg:#3A3217; --warn-ink:#F3D98B;
+    --primary:#F06B38; --primary-soft:#3A251B; --route:#E5E7EB; --plan:#9CA3AF; --warn-bg:#3A3217; --warn-ink:#F3D98B;
     --shadow:0 8px 28px rgba(0,0,0,.5); --shadow-s:0 2px 8px rgba(0,0,0,.4);
   }
 }
 :root[data-theme="dark"]{
   --bg:#121417; --surface:#1B1E23; --surface-2:#23272E; --ink:#F1F2F4; --ink-2:#C2C7CF; --muted:#8A9099; --line:#2E333B;
-  --primary:#F06B38; --primary-soft:#3A251B; --route:#E5E7EB; --warn-bg:#3A3217; --warn-ink:#F3D98B;
+  --primary:#F06B38; --primary-soft:#3A251B; --route:#E5E7EB; --plan:#9CA3AF; --warn-bg:#3A3217; --warn-ink:#F3D98B;
   --shadow:0 8px 28px rgba(0,0,0,.5); --shadow-s:0 2px 8px rgba(0,0,0,.4);
 }
 *,*::before,*::after{box-sizing:inherit}
@@ -470,10 +470,10 @@ function drawRoute(){
   if(!state.showRoute) return;
   plan.segs.filter(s=>s.kind==='move').forEach(s=>{
     let cur=[],curM=null;
-    const flush=()=>{ if(cur.length>1){ const sub=curM==='sub', col=sub?CSSV('--line3'):CSSV('--route');
-      if(!sub){ const casing=new google.maps.Polyline({path:cur.map(p=>({lat:p.lat,lng:p.lng})), map:gmap, strokeColor:'#ffffff', strokeWeight:8, strokeOpacity:.9, zIndex:4}); casing._end=s.end; casing._sub=false; casing._casing=true; LY.polys.push(casing); }
-      const pl=new google.maps.Polyline({path:cur.map(p=>({lat:p.lat,lng:p.lng})), map:gmap, strokeColor:col, strokeWeight:4, strokeOpacity:sub?0:.9, zIndex:5,
-        icons: sub?[{icon:{path:'M 0,-1 0,1',strokeOpacity:.85,strokeWeight:4,strokeColor:col,scale:3},offset:'0',repeat:'14px'}]:null});
+    // 계획 동선 전체를 반투명 회색으로 미리 표시(지하철 구간은 회색 점선). 지나온 구간은 drawNow가 노란 선으로 덮습니다.
+    const flush=()=>{ if(cur.length>1){ const sub=curM==='sub', col=CSSV('--plan');
+      const pl=new google.maps.Polyline({path:cur.map(p=>({lat:p.lat,lng:p.lng})), map:gmap, strokeColor:col, strokeWeight:6, strokeOpacity:sub?0:.4, zIndex:5, clickable:false,
+        icons: sub?[{icon:{path:'M 0,-1 0,1',strokeOpacity:.45,strokeWeight:6,strokeColor:col,scale:3},offset:'0',repeat:'14px'}]:null});
       pl._end=s.end; pl._sub=sub; LY.polys.push(pl); } };
     s.path.forEach((p,i)=>{ if(i>0&&p.m!==curM){flush(); cur=[s.path[i-1]];} curM=p.m; cur.push(p); }); flush();
   });
@@ -515,8 +515,8 @@ function drawNow(t){
   const p=posAt(plan,t);
   if(!LY.now){ LY.now=new HtmlMarker({lat:p.lat,lng:p.lng},'<div class="nowm" title="선택한 시각의 예상 위치"></div>','',null,200); LY.now.setMap(gmap); }
   else LY.now.setPosition({lat:p.lat,lng:p.lng});
-  if(!LY.trav) LY.trav=new google.maps.Polyline({map:gmap, strokeColor:CSSV('--now'), strokeWeight:5, strokeOpacity:.95, zIndex:6, clickable:false});
-  LY.trav.setPath(traveledPath(t));
+  if(!LY.trav){ LY.travC=new google.maps.Polyline({map:gmap, strokeColor:'#ffffff', strokeWeight:9, strokeOpacity:.9, zIndex:6, clickable:false}); LY.trav=new google.maps.Polyline({map:gmap, strokeColor:CSSV('--now'), strokeWeight:5, strokeOpacity:1, zIndex:7, clickable:false}); }
+  const tp=traveledPath(t); LY.travC.setPath(tp); LY.trav.setPath(tp);
   return p;
 }
 
