@@ -477,9 +477,10 @@ function drawCats(){
   const inRoute=new Set(state.showRoute? plan.stops.map(p=>p.id) : []);
   state.cats.forEach(cat=>{
     CATS[cat].list.forEach(p=>{
-      if(inRoute.has(p.id)) return;
       const sel=isSelected(p);
-      const m=new HtmlMarker({lat:p.lat,lng:p.lng},`<div class="dotm ${sel?'sel':''}" style="--c:${CSSV('--'+cat)}"><i></i><span>${esc(short(p.name))}</span></div>`,'al',()=>openCard(p),20); m.setMap(gmap); LY.cats.push(m);
+      // 코스에 포함된 곳은 번호 핀이 이름을 보여주므로 점만 표시, 나머지 후보는 점+이름
+      const lbl = inRoute.has(p.id) ? '' : `<span>${esc(short(p.name))}</span>`;
+      const m=new HtmlMarker({lat:p.lat,lng:p.lng},`<div class="dotm ${sel?'sel':''}" style="--c:${CSSV('--'+cat)}"><i></i>${lbl}</div>`,'al',()=>openCard(p),20); m.setMap(gmap); LY.cats.push(m);
     });
   });
 }
