@@ -299,7 +299,13 @@ function hav(a,b){
   return 2*R*Math.asin(Math.sqrt(s));
 }
 const walkDist=(a,b)=>hav(a,b)*ROUTE_FACTOR;
-const walkMin=(a,b)=>Math.max(2, Math.ceil(walkDist(a,b)/WALK_MPM));
+const walkMinEst=(a,b)=>Math.max(2, Math.ceil(walkDist(a,b)/WALK_MPM));
+/* Google 길찾기 결과 캐시: 실제 도보 시간·경로가 있으면 추정치 대신 사용 */
+const LEG_LS='anguk-legs-v2'; let legCache={};
+try{ legCache=JSON.parse(localStorage.getItem(LEG_LS)||'{}')||{}; }catch(e){ legCache={}; }
+const legKey=(a,b)=>`${a.lat.toFixed(5)},${a.lng.toFixed(5)}>${b.lat.toFixed(5)},${b.lng.toFixed(5)}`;
+const legInfo=(a,b)=>{ const l=legCache[legKey(a,b)]; return (l&&l.src==='google')? l : null; };
+const walkMin=(a,b)=>{ const l=legInfo(a,b); return l? Math.max(1,l.mins) : walkMinEst(a,b); };
 const fmt=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function links(p){
@@ -460,7 +466,8 @@ function drawRoute(){
   plan.segs.filter(s=>s.kind==='move').forEach(s=>{
     let cur=[],curM=null;
     const flush=()=>{ if(cur.length>1){ const sub=curM==='sub', col=sub?CSSV('--line3'):CSSV('--route');
-      const pl=new google.maps.Polyline({path:cur.map(p=>({lat:p.lat,lng:p.lng})), map:gmap, strokeColor:col, strokeWeight:4, strokeOpacity:sub?0:.85, zIndex:5,
+      if(!sub){ const casing=new google.maps.Polyline({path:cur.map(p=>({lat:p.lat,lng:p.lng})), map:gmap, strokeColor:'#ffffff', strokeWeight:8, strokeOpacity:.9, zIndex:4}); casing._end=s.end; casing._sub=false; casing._casing=true; LY.polys.push(casing); }
+      const pl=new google.maps.Polyline({path:cur.map(p=>({lat:p.lat,lng:p.lng})), map:gmap, strokeColor:col, strokeWeight:4, strokeOpacity:sub?0:.9, zIndex:5,
         icons: sub?[{icon:{path:'M 0,-1 0,1',strokeOpacity:.85,strokeWeight:4,strokeColor:col,scale:3},offset:'0',repeat:'14px'}]:null});
       pl._end=s.end; pl._sub=sub; LY.polys.push(pl); } };
     s.path.forEach((p,i)=>{ if(i>0&&p.m!==curM){flush(); cur=[s.path[i-1]];} curM=p.m; cur.push(p); }); flush();
@@ -489,8 +496,78 @@ function drawNow(t){
   const p=posAt(plan,t);
   if(!LY.now){ LY.now=new HtmlMarker({lat:p.lat,lng:p.lng},'<div class="nowm" title="선택한 시각의 예상 위치"></div>','',null,200); LY.now.setMap(gmap); }
   else LY.now.setPosition({lat:p.lat,lng:p.lng});
-  LY.polys.forEach(pl=>{ const op=pl._end<=t?.3:.85; if(pl._sub){ const ic=pl.get('icons'); if(ic&&ic[0].icon.strokeOpacity!==op){ ic[0].icon.strokeOpacity=op; pl.set('icons',ic);} } else if(pl.get('strokeOpacity')!==op) pl.setOptions({strokeOpacity:op}); });
+  LY.polys.forEach(pl=>{ const op=pl._casing? (pl._end<=t?.35:.9) : (pl._end<=t?.3:.9); if(pl._sub){ const ic=pl.get('icons'); if(ic&&ic[0].icon.strokeOpacity!==op){ ic[0].icon.strokeOpacity=op; pl.set('icons',ic);} } else if(pl.get('strokeOpacity')!==op) pl.setOptions({strokeOpacity:op}); });
   return p;
+}
+
+/* ===================== 실제 도보 경로 (Google Routes) ===================== */
+function detailPaths(plan){
+  plan.segs.filter(s=>s.kind==='move').forEach(s=>{
+    const out=[s.path[0]];
+    for(let i=1;i<s.path.length;i++){
+      const a=s.path[i-1], b=s.path[i];
+      if(b.m==='walk' && (a.lat!==b.lat||a.lng!==b.lng)){
+        const li=legInfo(a,b);
+        if(li && li.path && li.path.length>2){
+          const pts=li.path, d=[0];
+          for(let k=1;k<pts.length;k++) d.push(d[k-1]+hav({lat:pts[k-1][0],lng:pts[k-1][1]},{lat:pts[k][0],lng:pts[k][1]}));
+          const tot=d[d.length-1]||1;
+          for(let k=1;k<pts.length;k++) out.push({lat:pts[k][0],lng:pts[k][1],t:a.t+(b.t-a.t)*d[k]/tot,m:'walk'});
+          out.push({...b});
+          continue;
+        }
+      }
+      out.push(b);
+    }
+    s.path=out;
+  });
+}
+function missingLegs(plan){
+  const need=[], seen=new Set();
+  plan.segs.filter(s=>s.kind==='move').forEach(s=>{
+    for(let i=1;i<s.path.length;i++){ const a=s.path[i-1], b=s.path[i];
+      if(b.m!=='walk' || (a.lat===b.lat&&a.lng===b.lng)) continue;
+      const k=legKey(a,b); if(seen.has(k)) continue; seen.add(k);
+      const c=legCache[k]; if(c && (c.src==='google' || (c.src==='none' && Date.now()-c.ts<86400000))) continue;
+      need.push([a,b]);
+    }
+  });
+  return need;
+}
+let routesLib=null, dirSvc=null, legBusy=false, legFailNote='';
+async function fetchLeg(a,b){
+  const o={lat:a.lat,lng:a.lng}, d={lat:b.lat,lng:b.lng};
+  try{
+    if(!routesLib) routesLib=await google.maps.importLibrary('routes');
+    const {Route}=routesLib;
+    const res=await Route.computeRoutes({origin:o, destination:d, travelMode:'WALKING', fields:['path','durationMillis','distanceMeters']});
+    const r=res&&res.routes&&res.routes[0];
+    if(r&&r.path&&r.path.length>1) return {src:'google', mins:Math.max(1,Math.round((Number(r.durationMillis)||0)/60000)), dist:r.distanceMeters, path:r.path.map(q=>[+q.lat().toFixed(5),+q.lng().toFixed(5)])};
+  }catch(e){ console.warn('Routes JS:',e&&e.message||e); }
+  try{
+    if(google.maps.DirectionsService){
+      dirSvc=dirSvc||new google.maps.DirectionsService();
+      const res=await dirSvc.route({origin:o, destination:d, travelMode:google.maps.TravelMode.WALKING});
+      const leg=res.routes[0].legs[0];
+      return {src:'google', mins:Math.max(1,Math.round(leg.duration.value/60)), dist:leg.distance.value, path:res.routes[0].overview_path.map(q=>[+q.lat().toFixed(5),+q.lng().toFixed(5)])};
+    }
+  }catch(e){ console.warn('Directions:',e&&e.message||e); }
+  return {src:'none', ts:Date.now()};
+}
+async function queueLegs(){
+  if(!mapReady||legBusy) return;
+  const need=missingLegs(plan); if(!need.length) return;
+  legBusy=true; let got=0, fail=0;
+  for(const [a,b] of need){ const r=await fetchLeg(a,b); legCache[legKey(a,b)]=r; if(r.src==='google') got++; else fail++; }
+  try{ localStorage.setItem(LEG_LS,JSON.stringify(legCache)); }catch(e){}
+  legBusy=false;
+  legFailNote = fail? '일부 구간은 Google 길찾기를 받지 못해 직선 추정으로 표시됩니다(Routes API 사용 설정·키 제한 확인).' : '';
+  if(got||fail) recalc();
+}
+function legStatus(){
+  const raw=buildPlan(); let g=0, n=0;
+  raw.segs.filter(s=>s.kind==='move').forEach(s=>{ for(let i=1;i<s.path.length;i++){ const a=s.path[i-1],b=s.path[i]; if(b.m!=='walk'||(a.lat===b.lat&&a.lng===b.lng)) continue; n++; if(legInfo(a,b)) g++; } });
+  return {g,n};
 }
 
 /* ===================== 선택 ===================== */
@@ -548,11 +625,13 @@ function renderChips(){
 /* ===================== 일정 탭 ===================== */
 function renderItinerary(t){
   document.querySelectorAll('.seg [data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===state.mode));
-  document.getElementById('notes').innerHTML=plan.notes.map(n=>`<div class="note">${esc(n)}</div>`).join('');
+  const ls=legStatus();
+  const legLine = !mapReady? '' : ls.g===ls.n? `<div class="note" style="background:var(--surface-2);color:var(--ink-2)">🚶 도보 구간 ${ls.n}개 모두 Google 길찾기 경로·시간 기준입니다.</div>` : legBusy? `<div class="note" style="background:var(--surface-2);color:var(--ink-2)">🚶 Google 길찾기로 실제 도보 경로를 불러오는 중… (${ls.g}/${ls.n})</div>` : `<div class="note">${esc(legFailNote||'일부 구간은 직선 추정 경로입니다.')} (${ls.g}/${ls.n})</div>`;
+  document.getElementById('notes').innerHTML=legLine+plan.notes.map(n=>`<div class="note">${esc(n)}</div>`).join('');
   const ol=document.getElementById('it'); let idx=0;
   ol.innerHTML=plan.segs.map(s=>{
     const now=(t>=s.start&&t<s.end);
-    if(s.kind==='move') return `<li class="mv ${s.mode==='subway'?'sub':''} ${now?'now':''}" data-s="${s.start}" data-e="${s.end}"><span class="t"></span><div class="m">${s.mode==='subway'?'🚇':'🚶'} ${esc(s.label)} → ${esc(short(s.to.name))}</div></li>`;
+    if(s.kind==='move') return `<li class="mv ${s.mode==='subway'?'sub':''} ${now?'now':''}" data-s="${s.start}" data-e="${s.end}"><span class="t">${fmt(s.start)}</span><div class="m">${s.mode==='subway'?'🚇':'🚶'} ${esc(s.label)} → ${esc(short(s.to.name))}${s.mode!=='subway'&&legInfo(s.from,s.to)?` · ${Math.round(legInfo(s.from,s.to).dist)}m`:''}</div></li>`;
     if(s.kind==='free') return `<li class="free ${now?'now':''}" data-s="${s.start}" data-e="${s.end}"><span class="t">${fmt(s.start)}</span><div class="m">🍂 ${esc(s.label)}</div></li>`;
     const p=s.place; idx++;
     const chg = p.cat==='lunch'?'' : `<button class="chg" data-chg="${p.cat}">변경</button>`;
@@ -666,10 +745,11 @@ addEventListener('resize',()=>setSheet(sheetState));
 
 /* ===================== 조립 ===================== */
 function recalc(){
-  plan=buildPlan();
+  plan=buildPlan(); detailPaths(plan);
   renderChips(); renderTimeline(); renderItinerary(+state.t); renderPlaceList();
   drawRoute(); drawCats(); tick();
   if(cardPlace) openCard(cardPlace);
+  queueLegs();
 }
 function tick(){ const t=+state.t; const p=drawNow(t)||posAt(plan,t); renderStatus(t,p); document.querySelectorAll('#it li[data-s]').forEach(li=>li.classList.toggle('now', t>=+li.dataset.s && t<+li.dataset.e)); }
 
