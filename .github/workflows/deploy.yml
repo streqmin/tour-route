@@ -1,0 +1,51 @@
+# GitHub Pages 자동 배포: 저장소 Secret(GOOGLE_MAPS_API_KEY)을 index.html에 주입한 뒤 배포합니다.
+# 사용법: Settings → Pages → Source를 "GitHub Actions"로 설정하고,
+#        Settings → Secrets and variables → Actions → New repository secret 에 GOOGLE_MAPS_API_KEY 를 등록하세요.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inject Google Maps API key
+        env:
+          GMAPS_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        run: |
+          if [ -z "$GMAPS_KEY" ]; then
+            echo "::error::GOOGLE_MAPS_API_KEY secret이 설정되지 않았습니다."
+            exit 1
+          fi
+          mkdir -p dist
+          sed "s|__GMAPS_KEY__|${GMAPS_KEY}|g" index.html > dist/index.html
+          grep -q "__GMAPS_KEY__" dist/index.html && { echo "::error::치환 실패"; exit 1; } || echo "키 주입 완료"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
