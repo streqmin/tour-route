@@ -141,6 +141,10 @@ a{color:inherit}
 .it li.mv.sub .m::before{border-color:var(--line3)}
 .it li.mv.now .m{color:var(--ink)}
 .it li.free .m{font-size:12px; color:var(--muted); padding:6px 0 6px 14px}
+.it .nav{color:var(--primary); text-decoration:none; font-weight:600; margin-left:4px; white-space:nowrap}
+.trail{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-2); background:var(--surface-2); border-radius:10px; padding:8px 12px; margin:0 0 10px}
+.trail span{flex:1; min-width:160px} .trail b{color:var(--me)}
+.trail button{font-size:12px; padding:5px 10px; border-radius:8px; background:var(--surface); border:1px solid var(--line)}
 .endrow{font-size:12px; color:var(--muted); margin:10px 0 0 54px}
 .allroute{display:block; text-align:center; margin:16px 0 0; padding:11px; border-radius:12px; border:1px solid var(--line); font-size:13px; text-decoration:none; color:var(--ink-2)}
 
@@ -223,6 +227,7 @@ a{color:inherit}
           <button type="button" data-mode="walk">걸어서</button>
         </div>
         <button class="seg" style="margin-left:6px" id="nowBtn" type="button"><span class="on">현재 시각으로</span></button>
+        <div id="trailrow"></div>
         <div id="notes"></div>
         <ol class="it" id="it"></ol>
         <a class="allroute" id="allroute" target="_blank" rel="noopener">전체 경로를 Google 지도 앱에서 열기</a>
@@ -424,7 +429,7 @@ const short=n=>n.replace(/\s*\(.*?\)/,'');
 const BUILT_IN_KEY='__GMAPS_KEY__';
 const mapsKey=()=> /^__GMAPS/.test(BUILT_IN_KEY) ? '' : BUILT_IN_KEY;
 let gmap=null, HtmlMarker=null; let mapReady=false;
-const LY={stops:[],cats:[],polys:[],now:null,user:[]};
+const LY={stops:[],cats:[],polys:[],now:null,user:[],trav:null,trail:null};
 function mapError(msg){ document.getElementById('mapErrorMsg').textContent=msg; document.getElementById('mapError').classList.add('show'); }
 function loadGoogle(key){
   return new Promise((res,rej)=>{
@@ -491,13 +496,55 @@ function drawCats(){
     });
   });
 }
+/* 선택한 시각까지 지나온 궤적(계획 경로 위에 노란 선으로 남김) */
+function traveledPath(t){
+  const pts=[];
+  for(const s of plan.segs){
+    if(s.kind!=='move') continue;
+    if(s.end<=t){ s.path.forEach(q=>pts.push({lat:q.lat,lng:q.lng})); continue; }
+    if(s.start<t){ const el=t-s.start;
+      for(let i=0;i<s.path.length;i++){ const q=s.path[i];
+        if(q.t<=el) pts.push({lat:q.lat,lng:q.lng});
+        else { const a=s.path[i-1]||q, f=(q.t===a.t)?1:(el-a.t)/(q.t-a.t); pts.push({lat:a.lat+(q.lat-a.lat)*f,lng:a.lng+(q.lng-a.lng)*f}); break; } } }
+    break;
+  }
+  return pts;
+}
 function drawNow(t){
   if(!mapReady) return;
   const p=posAt(plan,t);
   if(!LY.now){ LY.now=new HtmlMarker({lat:p.lat,lng:p.lng},'<div class="nowm" title="선택한 시각의 예상 위치"></div>','',null,200); LY.now.setMap(gmap); }
   else LY.now.setPosition({lat:p.lat,lng:p.lng});
-  LY.polys.forEach(pl=>{ const op=pl._casing? (pl._end<=t?.35:.9) : (pl._end<=t?.3:.9); if(pl._sub){ const ic=pl.get('icons'); if(ic&&ic[0].icon.strokeOpacity!==op){ ic[0].icon.strokeOpacity=op; pl.set('icons',ic);} } else if(pl.get('strokeOpacity')!==op) pl.setOptions({strokeOpacity:op}); });
+  if(!LY.trav) LY.trav=new google.maps.Polyline({map:gmap, strokeColor:CSSV('--now'), strokeWeight:5, strokeOpacity:.95, zIndex:6, clickable:false});
+  LY.trav.setPath(traveledPath(t));
   return p;
+}
+
+/* 실제 GPS 이동 궤적 (내 위치를 켠 동안 기록, 브라우저에 저장) */
+const TRAIL_LS='anguk-trail-v1'; let trail=[];
+try{ trail=JSON.parse(localStorage.getItem(TRAIL_LS)||'[]')||[]; if(!Array.isArray(trail)) trail=[]; }catch(e){ trail=[]; }
+function trailDist(){ let d=0; for(let i=1;i<trail.length;i++) d+=hav(trail[i-1],trail[i]); return Math.round(d); }
+function addTrailPoint(pos){
+  if(pos.acc>60) return;
+  const last=trail[trail.length-1]; if(last && hav(last,pos)<8) return;
+  trail.push({lat:+pos.lat.toFixed(6), lng:+pos.lng.toFixed(6), ts:Date.now()}); if(trail.length>5000) trail.shift();
+  try{ localStorage.setItem(TRAIL_LS,JSON.stringify(trail)); }catch(e){}
+  drawTrail(); renderTrailRow();
+}
+function drawTrail(){
+  if(!mapReady) return;
+  if(!LY.trail) LY.trail=new google.maps.Polyline({map:gmap, strokeColor:CSSV('--me'), strokeOpacity:0, zIndex:7, clickable:false,
+    icons:[{icon:{path:google.maps.SymbolPath.CIRCLE, scale:2.6, fillColor:CSSV('--me'), fillOpacity:.95, strokeOpacity:0}, offset:'0', repeat:'9px'}]});
+  LY.trail.setPath(trail.map(q=>({lat:q.lat,lng:q.lng})));
+}
+function clearTrail(){ trail=[]; try{ localStorage.removeItem(TRAIL_LS); }catch(e){} drawTrail(); renderTrailRow(); }
+function renderTrailRow(){
+  const el=document.getElementById('trailrow'); if(!el) return;
+  if(!trail.length){ el.innerHTML=''; return; }
+  const d=trailDist(), t0=new Date(trail[0].ts), t1=new Date(trail[trail.length-1].ts), hhmm=x=>`${String(x.getHours()).padStart(2,'0')}:${String(x.getMinutes()).padStart(2,'0')}`;
+  el.innerHTML=`<div class="trail"><span>◎ 내 실제 이동 궤적 <b>${d>=1000?(d/1000).toFixed(2)+'km':d+'m'}</b> · ${hhmm(t0)}–${hhmm(t1)} · ${trail.length}개 지점</span><button type="button" id="trailFit">보기</button><button type="button" id="trailClear">지우기</button></div>`;
+  document.getElementById('trailFit').onclick=()=>{ fitTo(trail); setSheet('peek'); };
+  document.getElementById('trailClear').onclick=()=>{ if(confirm('기록된 이동 궤적을 지울까요?')) clearTrail(); };
 }
 
 /* ===================== 실제 도보 경로 (Google Routes) ===================== */
@@ -631,7 +678,7 @@ function renderItinerary(t){
   const ol=document.getElementById('it'); let idx=0;
   ol.innerHTML=plan.segs.map(s=>{
     const now=(t>=s.start&&t<s.end);
-    if(s.kind==='move') return `<li class="mv ${s.mode==='subway'?'sub':''} ${now?'now':''}" data-s="${s.start}" data-e="${s.end}"><span class="t">${fmt(s.start)}</span><div class="m">${s.mode==='subway'?'🚇':'🚶'} ${esc(s.label)} → ${esc(short(s.to.name))}${s.mode!=='subway'&&legInfo(s.from,s.to)?` · ${Math.round(legInfo(s.from,s.to).dist)}m`:''}</div></li>`;
+    if(s.kind==='move') return `<li class="mv ${s.mode==='subway'?'sub':''} ${now?'now':''}" data-s="${s.start}" data-e="${s.end}"><span class="t">${fmt(s.start)}</span><div class="m">${s.mode==='subway'?'🚇':'🚶'} ${esc(s.label)} → ${esc(short(s.to.name))}${s.mode!=='subway'&&legInfo(s.from,s.to)?` · ${Math.round(legInfo(s.from,s.to).dist)}m`:''} <a class="nav" href="https://www.google.com/maps/dir/?api=1&origin=${s.from.lat},${s.from.lng}&destination=${s.to.lat},${s.to.lng}&travelmode=${s.mode==='subway'?'transit':'walking'}" target="_blank" rel="noopener">길안내 ↗</a></div></li>`;
     if(s.kind==='free') return `<li class="free ${now?'now':''}" data-s="${s.start}" data-e="${s.end}"><span class="t">${fmt(s.start)}</span><div class="m">🍂 ${esc(s.label)}</div></li>`;
     const p=s.place; idx++;
     const chg = p.cat==='lunch'?'' : `<button class="chg" data-chg="${p.cat}">변경</button>`;
@@ -713,7 +760,7 @@ geoBtn.addEventListener('click',()=>{
   if(geoWatch!=null){ navigator.geolocation.clearWatch(geoWatch); geoWatch=null; userPos=null; drawUser(); geoBtn.classList.remove('on'); geoBtn.setAttribute('aria-pressed','false'); tick(); return; }
   if(!navigator.geolocation){ alert('이 브라우저는 위치 정보를 지원하지 않습니다.'); return; }
   geoBtn.classList.add('on'); geoBtn.setAttribute('aria-pressed','true'); let first=true;
-  geoWatch=navigator.geolocation.watchPosition(pos=>{ userPos={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy||0)}; drawUser(); tick(); if(first){ first=false; fitTo([userPos]); } },
+  geoWatch=navigator.geolocation.watchPosition(pos=>{ userPos={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy||0)}; drawUser(); addTrailPoint(userPos); tick(); if(first){ first=false; fitTo([userPos]); } },
     err=>{ alert(err.code===1?'위치 권한이 거부되었습니다. 브라우저 설정에서 허용해 주세요.':'현재 위치를 가져오지 못했습니다.'); geoWatch=null; geoBtn.classList.remove('on'); geoBtn.setAttribute('aria-pressed','false'); },
     {enableHighAccuracy:true, maximumAge:10000, timeout:20000});
 });
@@ -757,7 +804,7 @@ plan=buildPlan(); setSheet('peek'); renderCatFilter('cafe'); renderChips(); rend
 (async()=>{
   const key=mapsKey();
   if(!key){ mapError('Google Maps API 키가 주입되지 않았습니다. GitHub 저장소 Secret(GOOGLE_MAPS_API_KEY)을 등록하고 Actions로 배포한 주소에서 열어 주세요. claude.ai 미리보기에서는 지도가 표시되지 않습니다.'); return; }
-  try{ await loadGoogle(key); initMap(); recalc(); setTimeout(()=>fitTo(plan.stops),250); }
+  try{ await loadGoogle(key); initMap(); recalc(); drawTrail(); renderTrailRow(); setTimeout(()=>fitTo(plan.stops),250); }
   catch(e){ mapError(e.message==='auth'?'Google Maps API 키 인증에 실패했습니다. 키 제한(리퍼러·API)과 Maps JavaScript API 사용 설정을 확인하세요.':'Google 지도 스크립트를 불러오지 못했습니다. 네트워크를 확인하거나, 배포된 주소(https://아이디.github.io/…)에서 열어 주세요.'); }
 })();
 </script>
