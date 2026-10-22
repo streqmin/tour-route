@@ -250,6 +250,8 @@ const P = {
   hnd:          {name:'하네다공항 T3', lat:35.5445, lng:139.7683, cat:'transit', hours:'아시아나 체크인 마감 출발 60분 전(18:05)', tags:'게이큐·아사쿠사선 직통 승강장은 지하 2층'},
   asakusa_st:   {name:'아사쿠사역 (아사쿠사선)', lat:35.7111, lng:139.7978, cat:'transit', hours:'—', tags:'A2b 출구 → 호스텔 도보 12분'},
   hostel:       {name:'사쿠라 호스텔 아사쿠사', lat:35.7158, lng:139.7935, cat:'hotel', hours:'체크인 13:00~ · 체크아웃 ~11:00 · 24시간 프런트', tags:'2박 12,435엔 · 조식 포함 · 24h 공용 주방 · 짐 보관 무료', pid:''},
+  tomorrow:     {name:'友路有(토모로) 아사쿠사점', lat:35.7127, lng:139.7953, cat:'meal', hours:'6:30~20:00 · 연중무휴', tags:'쇼와풍 킷사텐 모닝 · 두꺼운 토스트+삶은달걀+커피 세트 약 500~700엔 · 1인 카운터 · 浅草1-29-3 2F'},
+  carib:        {name:'커피숍 CARIB (카리브)', lat:35.7131, lng:139.7948, cat:'meal', hours:'7:00~18:30 · 부정기 휴무', tags:'모닝 세트(토스트·삶은달걀·샐러드·커피) · 보르시 세트 · 浅草2-2-1'},
   yabu:         {name:'나미키 야부 소바', lat:35.7102, lng:139.7963, cat:'meal', hours:'11:00~19:00 · 목·2·4수 휴무', tags:'텐자루·카모난반 소바 · 1인 테이블 · 800~1,100엔'},
   sensoji:      {name:'센소지·나카미세', lat:35.7148, lng:139.7967, cat:'sight', hours:'본당 6:00~17:00 · 경내 24시간 · 야간 조명 ~23:00', tags:'가미나리몬 → 나카미세 → 본당 · 저녁엔 인적 적어 한적'},
   kuramae:      {name:'쿠라마에역 (오에도선)', lat:35.7039, lng:139.7905, cat:'transit', hours:'—', tags:''},
@@ -332,12 +334,14 @@ const DAYS = [
  { n:2, date:'10/25 (일)', short:'일', title:'리쿠기엔 → 신주쿠교엔 → 오모테산도 → 21_21 → 나카메구로 → 다이칸야마 → 지유가오카', t0:450, t1:1340,
    lead:'북(고마고메)에서 남서(지유가오카)로 한 방향으로만 내려갑니다. 고정 시간은 신주쿠교엔 16:00 입원 마감과 21_21 18:30 입장 마감 둘뿐입니다.',
    items:[
-    ['stay','hostel',480,525,'조식 (로스터리 갈 생각이면 07:00 정리권)'],
-    ['move','walk','hostel','tawaramachi',525,537,'도보 12분'],
-    ['move','transit','tawaramachi','ueno',537,543,'긴자선 2역'],
-    ['move','transit','ueno','komagome',543,555,'JR 야마노테선 약 10분',[[35.7278,139.7708],[35.7381,139.7609]]],
-    ['move','walk','komagome','rikugien',555,562,'도보 7분'],
-    ['stay','rikugien',562,625,'리쿠기엔 · 연못 한 바퀴 · 찻집'],
+    ['stay','hostel',480,490,'출발 (로스터리 갈 생각이면 07:00 정리권)'],
+    ['move','walk','hostel','tomorrow',490,495,'도보 5분'],
+    ['stay','tomorrow',495,530,'아침 · 킷사텐 모닝 세트 (대안 CARIB)'],
+    ['move','walk','tomorrow','tawaramachi',530,540,'도보 10분'],
+    ['move','transit','tawaramachi','ueno',540,546,'긴자선 2역'],
+    ['move','transit','ueno','komagome',546,558,'JR 야마노테선 약 10분',[[35.7278,139.7708],[35.7381,139.7609]]],
+    ['move','walk','komagome','rikugien',558,565,'도보 7분'],
+    ['stay','rikugien',565,625,'리쿠기엔 · 연못 한 바퀴 · 찻집'],
     ['move','walk','rikugien','komagome',625,632,'도보 7분'],
     ['move','transit','komagome','shinjuku_st',632,660,'JR 야마노테선 약 25분',[[35.7295,139.7109],[35.7123,139.7038]]],
     ['move','walk','shinjuku_st','gyoen',660,672,'남쪽 출구 → 신주쿠문 도보 10분'],
@@ -407,7 +411,7 @@ const DAYS = [
 /* 동선 주변 자유 선택 후보 (일자별) */
 const OPT = {
   cafe:{name:'카페', emoji:'☕', items:{1:['bb_kiyo','arise','allpress'], 2:['kitsune','mameya','roastery','onibus','sidewalk','montst'], 3:['bb_toyosu','glitch','ginzawest','tricolore']}},
-  meal:{name:'식사·대안', emoji:'🍜', items:{1:['yabu','yoroiya'], 2:['afuri','jiyu_dinner'], 3:['toyosu','bairin']}},
+  meal:{name:'식사·대안', emoji:'🍜', items:{1:['yabu','yoroiya'], 2:['tomorrow','carib','afuri','jiyu_dinner'], 3:['toyosu','bairin']}},
 };
 const CATNAME={hotel:'숙소',meal:'식사',cafe:'카페',park:'공원',sight:'구경',shop:'산책·쇼핑',museum:'미술관',transit:'역·공항'};
 const EMOJI={hotel:'🏠',meal:'🍜',cafe:'☕',park:'🌳',sight:'🏮',shop:'🛍️',museum:'🖼️',transit:'🚉'};
