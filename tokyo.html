@@ -283,6 +283,8 @@ const P = {
   miyashita:    {name:'MIYASHITA PARK · 시부야 요코초', lat:35.6612, lng:139.7025, cat:'shop', hours:'상점 11:00~21:00 · 옥상 공원 8:00~23:00', tags:'공원 위에 얹은 저층 쇼핑몰 · 옥상 잔디·스케이트장 · 스타벅스·소품샵'},
   takeshita:    {name:'다케시타도리 · 우라하라주쿠', lat:35.6710, lng:139.7030, cat:'shop', hours:'상점 11:00~20:00 전후', tags:'10대 문화 거리 · 크레페 · 뒷골목 우라하라의 빈티지·스트리트 브랜드'},
   shibuya_c:    {name:'시부야 센터가이 · 스크램블 교차로', lat:35.6598, lng:139.7005, cat:'shop', hours:'PARCO 11:00~21:00 · 로프트 10:00~21:00', tags:'PARCO 6F 닌텐도 도쿄·포켓몬센터·점프숍 · 시부야 로프트 · 센터가이 · 해 질 녘 스크램블'},
+  nihombashi_st:{name:'니혼바시역 (긴자선)', lat:35.6820, lng:139.7742, cat:'transit', hours:'—', tags:'B3 출구 → 츠지한 1분'},
+  tsujihan:     {name:'츠지한 니혼바시 본점 (つじ半)', lat:35.6805, lng:139.7732, cat:'meal', hours:'11:00~21:00 (LO 20:30) · 부정기 휴무', tags:'제이타쿠동(해산물 덮밥) 梅 1,250엔~ · 먹다가 도미 다시를 부어 오차즈케로 마무리 · 카운터 · 日本橋3-1-15', warn:'점심은 1~2시간 대기, 저녁이 가장 짧음 · 부정기 휴무라 당일 확인'},
   gyoenmae:     {name:'신주쿠교엔마에역 (마루노우치선)', lat:35.6886, lng:139.7106, cat:'transit', hours:'—', tags:'1번 출구 → 신주쿠문 5분'},
   gyoen:        {name:'신주쿠교엔 (신주쿠문)', lat:35.6878, lng:139.7101, cat:'park', hours:'9:00~16:30 (입원 16:00) · 500엔 · 월 휴원', tags:'일본정원 → 영국식 잔디 → 센다가야문 · 게이트에서 Suica 터치 입장'},
   meiji:        {name:'메이지진구 본전', lat:35.6764, lng:139.6993, cat:'sight', hours:'10월 5:40~16:40 · 무료', tags:'기타산도 입구로 들어가 숲길 → 본전 → 하라주쿠 쪽으로 나오기'},
@@ -352,8 +354,8 @@ const DAYS = [
     ['move','walk','tameike','hostel',1213,1220,'도보 7분'],
     ['stay','hostel',1220,1320,'체크인 · 대욕장·사우나 · 휴식'],
    ]},
- { n:2, date:'10/25 (일)', short:'일', title:'로스터리(아침) → 다이칸야마 → 시부야 → 캣스트리트·하라주쿠 → 오모테산도·아오야마 → 시부야 야경 → 아카사카', t0:420, t1:1320,
-   lead:'일요일은 가게 구경 위주로 시부야·하라주쿠·오모테산도·아오야마를 걸어서 잇습니다. 아침은 나카메구로 로스터리(주말 9시 전 한산, AirWAIT 정리권), 가게들이 11시에 열기 전까지는 다이칸야마 T-SITE와 다이쇼 시대 저택을 보고, 11시부터 MIYASHITA PARK → 캣스트리트 → 다케시타·우라하라주쿠 → 오모테산도 → 아오야마 순으로 북상한 뒤, 해 질 녘(16:55) 시부야로 돌아와 PARCO·로프트·스크램블을 보고 긴자선 8분으로 귀가, 숙소 7분 거리 야부소바에서 저녁. 이동은 거의 도보, 교통 약 650엔, 입장료 100엔.',
+ { n:2, date:'10/25 (일)', short:'일', title:'로스터리(아침) → 다이칸야마 → 시부야 → 캣스트리트·하라주쿠 → 오모테산도·아오야마 → 시부야 야경 → 니혼바시 츠지한 → 아카사카', t0:420, t1:1320,
+   lead:'일요일은 가게 구경 위주로 시부야·하라주쿠·오모테산도·아오야마를 걸어서 잇습니다. 아침은 나카메구로 로스터리(주말 9시 전 한산, AirWAIT 정리권), 가게들이 11시에 열기 전까지는 다이칸야마 T-SITE와 다이쇼 시대 저택을 보고, 11시부터 MIYASHITA PARK → 캣스트리트 → 다케시타·우라하라주쿠 → 오모테산도 → 아오야마 순으로 북상한 뒤, 해 질 녘(16:55) 시부야로 돌아와 PARCO·로프트·스크램블을 보고 긴자선으로 니혼바시 츠지한(해산물 덮밥, 저녁이 대기 가장 짧음)에서 저녁 후 긴자선 14분으로 귀가. 이동은 거의 도보, 교통 약 650엔, 입장료 100엔.',
    items:[
     ['stay','hostel',450,455,'출발 (AirWAIT로 로스터리 정리권 등록)'],
     ['move','walk','hostel','akasaka_st',455,462,'도보 7분'],
@@ -384,11 +386,13 @@ const DAYS = [
     ['move','walk','shibuya','shibuya_c',955,960,'도보 5분'],
     ['free','shibuya_c',960,1060,'시부야 — PARCO(닌텐도·포켓몬센터) · 로프트 · 센터가이 · 해 질 녘 스크램블 교차로'],
     ['move','walk','shibuya_c','shibuya',1060,1065,'도보 5분'],
-    ['move','transit','shibuya','akasaka_mitsuke',1065,1075,'긴자선 직통 3역 약 8분 · 180엔',[[35.6652,139.7123],[35.6706,139.7178]]],
-    ['move','walk','akasaka_mitsuke','yabusoba_ak',1075,1082,'도보 7분'],
-    ['stay','yabusoba_ak',1082,1125,'저녁 · 도쿄 아카사카 야부소바 (스다치 소바 · 22시까지)'],
-    ['move','walk','yabusoba_ak','hostel',1125,1132,'도보 7분'],
-    ['stay','hostel',1132,1320,'귀가 · 대욕장 · 휴식'],
+    ['move','transit','shibuya','nihombashi_st',1065,1091,'긴자선 직통 약 26분 · 260엔',[[35.6652,139.7123],[35.6770,139.7372],[35.6663,139.7583],[35.6717,139.7649]]],
+    ['move','walk','nihombashi_st','tsujihan',1091,1093,'B3 출구 도보 1분'],
+    ['stay','tsujihan',1093,1140,'저녁 · 츠지한 제이타쿠동 (저녁 대기 짧음 · 휴무면 아카사카 야부소바)'],
+    ['move','walk','tsujihan','nihombashi_st',1140,1142,'도보 1분'],
+    ['move','transit','nihombashi_st','akasaka_mitsuke',1142,1156,'긴자선 직통 약 14분 · 210엔',[[35.6717,139.7649],[35.6663,139.7583],[35.6736,139.7414]]],
+    ['move','walk','akasaka_mitsuke','hostel',1156,1159,'도보 3분'],
+    ['stay','hostel',1159,1320,'귀가 · 대욕장 · 휴식'],
    ]},
  { n:3, date:'10/26 (월)', short:'월', title:'츠키지 장외시장 → 하마리큐 → 긴자 → 히비야 공원 → 아카사카 → 하네다', t0:450, t1:1215,
    lead:'월요일은 신주쿠교엔·네즈가 쉬지만 츠키지 장외시장·하마리큐·긴자는 엽니다. 숙소에서 히비야선으로 15분, 이후 츠키지 → 하마리큐 → 긴자 → 히비야 공원은 전부 도보로 이어지고, 히비야에서 치요다선 3역이면 숙소입니다. 바이린은 11:30 개점 직후 들어가 줄을 피합니다.',
@@ -426,7 +430,7 @@ const DAYS = [
 /* 동선 주변 자유 선택 후보 (일자별) */
 const OPT = {
   cafe:{name:'카페', emoji:'☕', items:{1:['shirotae'], 2:['roastery','kitsune','mameya'], 3:['glitch','ginzawest','tricolore']}},
-  meal:{name:'식사·대안', emoji:'🍜', items:{1:['men_tomo','murosaba','naniwaya','sarashina'], 2:['roastery','ueshima','negishi','yabusoba_ak','afuri'], 3:['marutake','torito','kitsuneya','bairin']}},
+  meal:{name:'식사·대안', emoji:'🍜', items:{1:['men_tomo','murosaba','naniwaya','sarashina'], 2:['roastery','ueshima','negishi','tsujihan','yabusoba_ak','afuri'], 3:['marutake','torito','kitsuneya','bairin']}},
 };
 const CATNAME={hotel:'숙소',meal:'식사',cafe:'카페',park:'공원',sight:'구경',shop:'산책·쇼핑',museum:'미술관',transit:'역·공항'};
 const EMOJI={hotel:'🏠',meal:'🍜',cafe:'☕',park:'🌳',sight:'🏮',shop:'🛍️',museum:'🖼️',transit:'🚉'};
