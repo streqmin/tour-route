@@ -32,8 +32,10 @@ jobs:
             exit 1
           fi
           mkdir -p dist
-          sed "s|__GMAPS_KEY__|${GMAPS_KEY}|g" index.html > dist/index.html
-          grep -q "__GMAPS_KEY__" dist/index.html && { echo "::error::치환 실패"; exit 1; } || echo "키 주입 완료"
+          for f in *.html; do
+            sed "s|__GMAPS_KEY__|${GMAPS_KEY}|g" "$f" > "dist/$f"
+            grep -q "__GMAPS_KEY__" "dist/$f" && { echo "::error::치환 실패: $f"; exit 1; } || echo "키 주입 완료: $f"
+          done
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

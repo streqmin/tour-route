@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#F7F4EE">
+<title>도쿄 2박 3일 — 10/24~26 동선</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+  --bg:#F7F4EE; --surface:#FFFFFF; --surface-2:#F2EEE6; --ink:#171A1F; --ink-2:#4B5563; --muted:#8A9099; --line:#E6E1D7;
+  --primary:#E85D2A; --primary-ink:#fff; --primary-soft:#FCE8DE;
+  --meal:#2F5BB7; --cafe:#8A5A3B; --sight:#D9453A; --shop:#1F8A70; --museum:#6D3F9E; --park:#3C8D3F; --hotel:#E85D2A; --transit:#6B7280;
+  --now:#F2C230; --me:#1A73E8; --route:#1F2937; --plan:#4B5563; --line3:#EF7C1C;
+  --warn-bg:#FFF3D6; --warn-ink:#7A5200;
+  --shadow:0 8px 28px rgba(23,26,31,.14); --shadow-s:0 2px 8px rgba(23,26,31,.12);
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121417; --surface:#1B1E23; --surface-2:#23272E; --ink:#F1F2F4; --ink-2:#C2C7CF; --muted:#8A9099; --line:#2E333B;
+    --primary:#F06B38; --primary-soft:#3A251B; --route:#E5E7EB; --plan:#9CA3AF; --warn-bg:#3A3217; --warn-ink:#F3D98B;
+    --shadow:0 8px 28px rgba(0,0,0,.5); --shadow-s:0 2px 8px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121417; --surface:#1B1E23; --surface-2:#23272E; --ink:#F1F2F4; --ink-2:#C2C7CF; --muted:#8A9099; --line:#2E333B;
+  --primary:#F06B38; --primary-soft:#3A251B; --route:#E5E7EB; --plan:#9CA3AF; --warn-bg:#3A3217; --warn-ink:#F3D98B;
+  --shadow:0 8px 28px rgba(0,0,0,.5); --shadow-s:0 2px 8px rgba(0,0,0,.4);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%; margin:0; overscroll-behavior:none}
+body{background:var(--bg); color:var(--ink); font-family:"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif; font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent}
+h1,h2,h3,.disp{font-family:"Gowun Dodum","Noto Sans KR",sans-serif; font-weight:400; margin:0; letter-spacing:-.01em}
+button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--primary); outline-offset:2px}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+
+/* ---- app frame ---- */
+.app{position:fixed; inset:0; overflow:hidden}
+#map{position:absolute; inset:0; background:#E9E5DC}
+.map-error{position:absolute; inset:0; display:none; align-items:center; justify-content:center; padding:24px; background:var(--bg)}
+.map-error.show{display:flex}
+.map-error .box{max-width:360px; background:var(--surface); border-radius:var(--r); padding:22px; box-shadow:var(--shadow); text-align:center}
+.map-error .box h2{font-size:18px; margin-bottom:8px}
+.map-error .box p{margin:0; color:var(--ink-2); font-size:13px}
+
+/* top bar */
+.top{position:absolute; left:0; right:0; top:0; padding:calc(var(--sat) + 10px) 12px 0; pointer-events:none; z-index:5}
+.top > *{pointer-events:auto}
+.bar{display:flex; align-items:center; gap:10px; background:var(--surface); border-radius:999px; padding:8px 8px 8px 16px; box-shadow:var(--shadow-s); max-width:560px; margin:0 auto}
+.bar .title{flex:1; min-width:0}
+.bar .title h1{font-size:17px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.bar .title .sub{font-size:11.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ibtn{width:40px; height:40px; border-radius:50%; display:grid; place-items:center; background:var(--surface-2); color:var(--ink); font-size:18px; flex:none}
+.chips{display:flex; gap:8px; overflow-x:auto; padding:10px 2px 6px; scrollbar-width:none; max-width:560px; margin:0 auto}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none; display:inline-flex; align-items:center; gap:6px; padding:8px 13px; border-radius:999px; background:var(--surface); box-shadow:var(--shadow-s); font-size:13px; font-weight:500; color:var(--ink-2); border:1.5px solid transparent}
+.chip .d{width:9px; height:9px; border-radius:50%; background:var(--c)}
+.chip.on{border-color:var(--c,var(--primary)); color:var(--ink); background:var(--surface)}
+.chip.route.on{background:var(--route); color:var(--bg)}
+.chip .cnt{font-size:11px; color:var(--muted)}
+
+/* floating right buttons */
+.fabs{position:absolute; right:12px; display:flex; flex-direction:column; gap:10px; z-index:5; transition:bottom .25s ease, opacity .2s}
+.fabs.hide{opacity:0; pointer-events:none}
+.fab{width:44px; height:44px; border-radius:50%; background:var(--surface); box-shadow:var(--shadow-s); display:grid; place-items:center; font-size:19px}
+.fab.on{background:var(--me); color:#fff}
+
+/* bottom sheet */
+.sheet{position:absolute; left:0; right:0; bottom:0; margin:0 auto; max-width:560px; height:212px; background:var(--surface); border-radius:22px 22px 0 0; box-shadow:0 -6px 30px rgba(0,0,0,.18); z-index:6; display:flex; flex-direction:column; transition:height .28s cubic-bezier(.2,.8,.2,1); touch-action:none}
+.sheet.dragging{transition:none}
+.handle{height:22px; display:grid; place-items:center; flex:none; cursor:grab}
+.handle::before{content:""; width:40px; height:5px; border-radius:3px; background:var(--line)}
+.sheet-head{padding:0 16px 10px; flex:none; touch-action:none}
+.days{display:flex; gap:4px; background:var(--surface-2); border-radius:12px; padding:4px; margin:0 0 10px}
+.days button{flex:1; padding:6px 4px; border-radius:9px; font-size:12.5px; color:var(--muted); line-height:1.25}
+.days button b{display:block; font-weight:600; font-size:13px}
+.days button.on{background:var(--surface); color:var(--ink); box-shadow:var(--shadow-s)}
+.clockrow{display:flex; align-items:center; gap:12px}
+.clock{font-family:"Gowun Dodum",sans-serif; font-size:30px; line-height:1; font-variant-numeric:tabular-nums; min-width:84px}
+.status{flex:1; min-width:0; font-size:12.5px; color:var(--ink-2); line-height:1.35}
+.status b{color:var(--ink); font-weight:600}
+.status .geo{display:block; color:var(--me); font-size:11.5px; margin-top:2px}
+.playbtn{width:38px; height:38px; border-radius:50%; background:var(--primary); color:#fff; display:grid; place-items:center; font-size:14px; flex:none}
+.tl{position:relative; height:34px; margin-top:8px; border-radius:10px; background:var(--surface-2); overflow:hidden; touch-action:none}
+.tl .blk{position:absolute; top:9px; height:16px; border-radius:4px}
+.tl .blk.move{top:13px; height:8px; background:var(--line)}
+.tl .blk.move.transit{background:repeating-linear-gradient(90deg,var(--line3) 0 4px,transparent 4px 7px)}
+.tl .blk.free{background:repeating-linear-gradient(45deg,var(--line) 0 3px,transparent 3px 7px)}
+.tl .tick{position:absolute; top:0; bottom:0; width:1px; background:rgba(0,0,0,.06)}
+.tl .tick span{position:absolute; top:0; left:3px; font-size:9px; color:var(--muted)}
+.tl .cur{position:absolute; top:0; bottom:0; width:2px; background:var(--now)}
+.tl .cur::after{content:""; position:absolute; top:-1px; left:-6px; width:14px; height:14px; border-radius:50%; background:var(--now); box-shadow:0 0 0 2px var(--surface)}
+.sheet-body{flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; touch-action:pan-y; padding:0 16px calc(var(--sab) + 24px)}
+.tabs{display:flex; gap:6px; background:var(--surface-2); border-radius:12px; padding:4px; margin:4px 0 12px; position:sticky; top:0; z-index:2}
+.tabs button{flex:1; padding:8px; border-radius:9px; font-size:13.5px; font-weight:500; color:var(--muted)}
+.tabs button.on{background:var(--surface); color:var(--ink); box-shadow:var(--shadow-s)}
+.pane{display:none} .pane.on{display:block}
+
+/* place card */
+.card{display:none; background:var(--surface-2); border-radius:var(--r); padding:14px 14px 12px; margin:4px 0 14px; position:relative}
+.card.show{display:block}
+.card .x{position:absolute; right:10px; top:8px; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; color:var(--muted); font-size:16px}
+.card .cat{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-2); background:var(--surface); padding:3px 9px; border-radius:999px}
+.card .cat i{width:8px; height:8px; border-radius:50%; background:var(--c)}
+.card h3{font-size:18px; margin:8px 0 2px; padding-right:28px}
+.card .meta{font-size:12.5px; color:var(--ink-2)}
+.card .tags{font-size:12.5px; color:var(--muted); margin-top:4px}
+.card .warn{display:inline-block; margin-top:6px; font-size:11.5px; color:var(--warn-ink); background:var(--warn-bg); padding:3px 9px; border-radius:8px}
+.card .act{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px 14px; border-radius:12px; font-size:13.5px; font-weight:600; background:var(--primary); color:#fff; flex:1; min-width:120px}
+.btn.sec{background:var(--surface); color:var(--ink); border:1px solid var(--line); font-weight:500}
+.btn.done{background:var(--ink); color:var(--bg)}
+.links{display:flex; gap:12px; margin-top:10px; font-size:12px}
+.links a{color:var(--ink-2); text-decoration:none; border-bottom:1px dotted var(--muted)}
+
+/* itinerary */
+.seg{display:inline-flex; background:var(--surface-2); border-radius:10px; padding:3px; margin:0 0 12px}
+.seg button{padding:6px 12px; border-radius:8px; font-size:12.5px; color:var(--muted)}
+.seg button.on{background:var(--surface); color:var(--ink); box-shadow:var(--shadow-s)}
+.note{font-size:12.5px; background:var(--warn-bg); color:var(--warn-ink); padding:8px 12px; border-radius:10px; margin:0 0 10px}
+.note.soft{background:var(--surface-2); color:var(--ink-2)}
+.dayhead{margin:0 0 10px}
+.dayhead h2{font-size:16px}
+.dayhead p{margin:4px 0 0; font-size:12.5px; color:var(--ink-2)}
+.it{list-style:none; margin:0; padding:0}
+.it li{display:grid; grid-template-columns:44px 1fr; gap:10px; position:relative}
+.it li .t{font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; padding-top:14px; text-align:right}
+.it li.stay .t{color:var(--ink-2); font-weight:500}
+.it .stop{display:flex; gap:12px; align-items:flex-start; background:var(--surface-2); border-radius:16px; padding:12px; margin:4px 0; border:1.5px solid transparent; cursor:pointer}
+.it li.now .stop{border-color:var(--now); box-shadow:0 0 0 3px rgba(242,194,48,.25)}
+.it .ic{width:40px; height:40px; border-radius:13px; display:grid; place-items:center; font-size:19px; background:var(--c); color:#fff; flex:none}
+.it .ic span{font-size:10px; font-weight:700; line-height:1; margin-top:-2px}
+.it .body{flex:1; min-width:0}
+.it .nm{font-weight:600; font-size:14.5px; line-height:1.3}
+.it .sub{font-size:12px; color:var(--ink-2); margin-top:2px}
+.it .sub2{font-size:11.5px; color:var(--muted)}
+.it li.mv .m{font-size:12px; color:var(--muted); padding:6px 0 6px 14px; position:relative}
+.it li.mv .m::before{content:""; position:absolute; left:3px; top:0; bottom:0; border-left:2px dashed var(--line)}
+.it li.mv.transit .m::before{border-color:var(--line3)}
+.it li.mv.now .m{color:var(--ink)}
+.it li.free .m{font-size:12px; color:var(--muted); padding:6px 0 6px 14px}
+.it .nav{color:var(--primary); text-decoration:none; font-weight:600; margin-left:4px; white-space:nowrap}
+.trail{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-2); background:var(--surface-2); border-radius:10px; padding:8px 12px; margin:0 0 10px}
+.trail span{flex:1; min-width:160px} .trail b{color:var(--me)}
+.trail button{font-size:12px; padding:5px 10px; border-radius:8px; background:var(--surface); border:1px solid var(--line)}
+.endrow{font-size:12px; color:var(--muted); margin:10px 0 0 54px}
+.allroute{display:block; text-align:center; margin:16px 0 0; padding:11px; border-radius:12px; border:1px solid var(--line); font-size:13px; text-decoration:none; color:var(--ink-2)}
+
+/* places */
+.ph{display:flex; align-items:center; justify-content:space-between; margin:14px 0 8px}
+.ph h3{font-size:15px; display:flex; align-items:center; gap:8px}
+.ph h3 i{width:10px; height:10px; border-radius:50%; background:var(--c)}
+.ph .when{font-size:12px; color:var(--muted)}
+.pl{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+.pc{display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; background:var(--surface-2); border-radius:14px; padding:11px 12px; border:1.5px solid transparent}
+.pc.sel{border-color:var(--c)}
+.pc .nm{font-weight:600; font-size:14px}
+.pc .hrs{font-size:12px; color:var(--ink-2)}
+.pc .tg{font-size:11.5px; color:var(--muted); margin-top:1px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden}
+.pc .dist{font-size:11px; color:var(--muted); text-align:right; line-height:1.3}
+.pc .pick{margin-top:6px; width:34px; height:34px; border-radius:50%; background:var(--surface); border:1.5px solid var(--line); display:grid; place-items:center; font-size:15px; margin-left:auto}
+.pc.sel .pick{background:var(--c); border-color:var(--c); color:#fff}
+.pc .wn{font-size:11px; color:var(--warn-ink)}
+.catfilter{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:4px}
+.catfilter button{padding:6px 11px; border-radius:999px; font-size:12.5px; background:var(--surface-2); color:var(--ink-2); border:1.5px solid transparent}
+.catfilter button.on{border-color:var(--c); color:var(--ink)}
+
+/* google overlay markers */
+.gm{position:absolute; transform:translate(-50%,-50%); pointer-events:none}
+.gm.click{pointer-events:auto; cursor:pointer}
+.gm.ab{transform:translate(-50%,-100%)}
+.gm.al{transform:translate(-7px,-50%)}
+.pin-wrap{display:flex; flex-direction:column; align-items:center; gap:2px}
+.pin-wrap svg{display:block; filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.gm-lbl{ white-space:nowrap; background:rgba(255,255,255,.95); color:#171A1F; font-size:11px; font-weight:600; padding:2px 7px; border-radius:7px; box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.gm-lbl small{display:block; font-weight:400; color:#4B5563; font-size:10px}
+.dotm{display:flex; align-items:center; gap:5px}
+.dotm i{width:14px; height:14px; border-radius:50%; background:#fff; border:3px solid var(--c); box-shadow:0 1px 3px rgba(0,0,0,.3); flex:none}
+.dotm span{white-space:nowrap; background:rgba(255,255,255,.92); color:#171A1F; font-size:10.5px; padding:1px 6px; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.dotm.sel i{background:var(--c)}
+.stm{width:10px; height:10px; border-radius:50%; background:#fff; border:2px solid var(--transit); box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.nowm{width:18px; height:18px; border-radius:50%; background:var(--now); border:2.5px solid #171A1F; box-shadow:0 0 0 6px rgba(242,194,48,.3)}
+@media (prefers-reduced-motion:no-preference){ .nowm{animation:pulse 1.6s ease-out infinite} @keyframes pulse{0%{box-shadow:0 0 0 4px rgba(242,194,48,.45)}100%{box-shadow:0 0 0 16px rgba(242,194,48,0)}} }
+.mem{width:18px; height:18px; border-radius:50%; background:var(--me); border:3px solid #fff; box-shadow:0 0 0 2px rgba(26,115,232,.35),0 1px 4px rgba(0,0,0,.4)}
+@media (min-width:700px){ .sheet{border-radius:22px 22px 0 0} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="map" aria-label="동선 지도"></div>
+  <div class="map-error" id="mapError"><div class="box"><h2>지도를 불러오지 못했어요</h2><p id="mapErrorMsg"></p></div></div>
+
+  <div class="top">
+    <div class="bar">
+      <div class="title"><h1>도쿄 2박 3일</h1><div class="sub" id="barsub">10/24 토 – 10/26 월 · 스파블릭 인 캡슐 하타고 아카사카</div></div>
+      <button class="ibtn" id="fitBtn" title="오늘 동선 전체 보기" aria-label="오늘 동선 전체 보기">⤢</button>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="지도에 표시할 항목"></div>
+  </div>
+
+  <div class="fabs" id="fabs">
+    <button class="fab" id="geoBtn" title="내 위치" aria-label="내 위치 표시" aria-pressed="false">◎</button>
+  </div>
+
+  <section class="sheet" id="sheet" data-state="peek" aria-label="일정 패널">
+    <div class="handle" id="handle" role="button" aria-label="패널 펼치기/접기" tabindex="0"></div>
+    <div class="sheet-head">
+      <div class="days" id="days" role="group" aria-label="날짜 선택"></div>
+      <div class="clockrow">
+        <div class="clock" id="clock">11:00</div>
+        <div class="status" id="status"></div>
+        <button class="playbtn" id="play" aria-label="시간 재생">▶</button>
+      </div>
+      <div class="tl" id="tl" aria-hidden="true"></div>
+      <input class="sr" type="range" id="range" min="0" max="1440" value="0" aria-label="시각 선택">
+    </div>
+    <div class="sheet-body" id="body">
+      <div class="card" id="card"></div>
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="it" class="on">일정</button>
+        <button role="tab" data-tab="pl">주변 카페·대안</button>
+      </div>
+      <div class="pane on" id="pane-it">
+        <div class="dayhead" id="dayhead"></div>
+        <button class="seg" id="nowBtn" type="button"><span class="on">현재 시각으로</span></button>
+        <div id="trailrow"></div>
+        <div id="notes"></div>
+        <ol class="it" id="it"></ol>
+        <a class="allroute" id="allroute" target="_blank" rel="noopener">오늘 동선을 Google 지도 앱에서 열기</a>
+      </div>
+      <div class="pane" id="pane-pl">
+        <div class="catfilter" id="catfilter"></div>
+        <div id="plist"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ===================== 장소 데이터 ===================== */
+/* cat: hotel 숙소 · meal 식사 · cafe 카페 · park 공원 · sight 구경 · shop 산책/쇼핑 · museum 미술관 · transit 역/공항 */
+const P = {
+  hnd:          {name:'하네다공항 T3', lat:35.5445, lng:139.7683, cat:'transit', hours:'아시아나 체크인 마감 출발 60분 전(18:05)', tags:'게이큐·아사쿠사선 직통 승강장은 지하 2층'},
+  shimbashi:    {name:'신바시역', lat:35.6663, lng:139.7583, cat:'transit', hours:'—', tags:'아사쿠사선 ↔ 긴자선 환승'},
+  hostel:       {name:'스파블릭 인 캡슐 하타고 아카사카', lat:35.6752, lng:139.7365, cat:'hotel', hours:'체크인 15:00~ · 체크아웃 ~11:00 · 24시간 프런트', tags:'赤坂3-10-4 3F · 아카사카미츠케역 3분 · 나가타초역 8분 · 타메이케산노역 7분 · 대욕장·사우나 · 짐 보관'},
+  akasaka_mitsuke:{name:'아카사카미츠케역 (긴자선·마루노우치선)', lat:35.6770, lng:139.7372, cat:'transit', hours:'—', tags:'숙소 도보 3분'},
+  akasaka_st:   {name:'아카사카역 (치요다선)', lat:35.6727, lng:139.7368, cat:'transit', hours:'—', tags:'숙소 도보 7분'},
+  tameike:      {name:'타메이케산노역 (난보쿠선)', lat:35.6736, lng:139.7414, cat:'transit', hours:'—', tags:'숙소 도보 7분 · ANA 인터컨티넨탈(공항 리무진) 3분'},
+  kasumigaseki: {name:'가스미가세키역', lat:35.6745, lng:139.7520, cat:'transit', hours:'—', tags:'마루노우치선 ↔ 히비야선'},
+  shirotae:     {name:'시로타에 (西洋菓子しろたえ)', lat:35.6762, lng:139.7370, cat:'cafe', hours:'토 10:30~19:00 (喫茶 ~18:00) · 일·월 휴무', tags:'1976년 아카사카 명물 레어치즈케이크 260엔/조각 · 18석 · 현금만', warn:'휴일 대기 40분 후기 — 테이크아웃 줄이 따로 있음. 일·월은 닫으니 토요일에만'},
+  toyokawa:     {name:'토요카와 이나리 도쿄별원', lat:35.6790, lng:139.7355, cat:'sight', hours:'6:00~20:00 · 무료', tags:'여우상 수백 개가 늘어선 절(이나리) · 아카사카미츠케 5분'},
+  men_tomo:     {name:'아카사카 멘도코로 토모 (赤坂麺処 友)', lat:35.6715, lng:139.7380, cat:'meal', hours:'토·일 11:00~21:00 (LO 20:30)', tags:'쇼유·시오 라멘 ~999엔 · 카운터 14석 · 식권기 · 赤坂2-13-13'},
+  murosaba:     {name:'무로마치 스나바 아카사카점 (室町砂場)', lat:35.6734, lng:139.7360, cat:'meal', hours:'월~토 11:30~19:30 (LO 19:00) · 일·공휴일 휴무', tags:'에도 3대 소바 노포 계열 · ざる·鴨南蛮 1,500엔 전후 · 赤坂6-3-5'},
+  hie:          {name:'히에 신사 (日枝神社)', lat:35.6745, lng:139.7398, cat:'sight', hours:'6:00~17:00 · 무료', tags:'에도성 수호 신사 · 붉은 도리이 터널 계단 · 아카사카미츠케 8분'},
+  d2121:        {name:'21_21 DESIGN SIGHT', lat:35.6683, lng:139.7281, cat:'museum', hours:'10:00~19:00 (입장 18:30) · 1,700엔 · 화 휴관', tags:'안도 다다오 · 기획전 「方丈記に学ぶ」(~2027.1) · 예약 불필요'},
+  midtown:      {name:'도쿄 미드타운 가든·잔디광장', lat:35.6660, lng:139.7300, cat:'park', hours:'상시 개방 · 무료', tags:'21_21 바로 옆 잔디밭 · 벤치'},
+  nact:         {name:'국립신미술관 (国立新美術館)', lat:35.6654, lng:139.7265, cat:'museum', hours:'10:00~18:00, 금·토 ~20:00 (입장 30분 전) · 화 휴관', tags:'구로카와 기쇼 설계 유리 커튼월 · 루브르전 2,400엔 / 독립전·니키전 1,000엔 · 건물 산책만도 좋음', warn:'전시는 선택 — 로비·건축만 보면 짧게'},
+  roppongi:     {name:'롯폰기역 (오에도선)', lat:35.6634, lng:139.7318, cat:'transit', hours:'—', tags:''},
+  azabujuban_st:{name:'아자부주반역', lat:35.6546, lng:139.7368, cat:'transit', hours:'—', tags:'난보쿠선 → 타메이케산노 2역 직통'},
+  naniwaya:     {name:'나니와야 총본점 (浪花家総本店)', lat:35.6560, lng:139.7365, cat:'meal', hours:'11:00~19:00 · 화·수 휴무', tags:'1909년 타이야키 원조 · 1개 ~300엔 · 현금만 · 낮엔 긴 줄, 저녁은 짧음'},
+  azabu_street: {name:'아자부주반 상점가', lat:35.6553, lng:139.7357, cat:'shop', hours:'가게별 ~19~20시', tags:'300년 상점가 · 노포 과자점·센베이·소품'},
+  sarashina:    {name:'사라시나 호리이 본점 (更科堀井)', lat:35.6563, lng:139.7330, cat:'meal', hours:'토·일 11:00~20:00 (LO 20:00) · 연말연시 휴무', tags:'1789년 창업 · 흰 사라시나 소바 1,000엔~ · 70석 · 아자부주반역 6분 · 주말 좌석 예약 불가'},
+  ueshima:      {name:'우에시마 커피 아카사카 (上島珈琲店)', lat:35.6734, lng:139.7363, cat:'meal', hours:'토·일 6:30~18:00', tags:'일본식 킷사텐 체인 모닝 · 두꺼운 버터토스트·삶은달걀 세트 · 카운터석 · 赤坂6-3-17'},
+  roastery:     {name:'스타벅스 리저브 로스터리 도쿄', lat:35.6480, lng:139.6922, cat:'cafe', hours:'7:00~22:00 · 주말 7:00부터 AirWAIT 정리권', tags:'메구로강변 4층 로스터리 · Princi 베이커리 아침 · 1,000~1,500엔', warn:'주말은 오전 9시 전이 가장 한산 — 도착 전 AirWAIT 등록'},
+  nakameguro_st:{name:'나카메구로역', lat:35.6441, lng:139.6990, cat:'transit', hours:'—', tags:'히비야선 · 도요코선'},
+  shinjuku3:    {name:'신주쿠산초메역 (후쿠토신선)', lat:35.6910, lng:139.7060, cat:'transit', hours:'—', tags:'E5 출구 → 신주쿠교엔 신주쿠문 7분'},
+  afuri:        {name:'AFURI 하라주쿠', lat:35.6700, lng:139.7049, cat:'meal', hours:'매일 10:00~23:00 (LO 22:30)', tags:'유자시오 라멘 1,490엔 · 카운터 16석 · 식권기 · 완전 캐시리스(현금 불가) · 千駄ヶ谷3-63-1'},
+  aoyama_lanes: {name:'미나미아오야마 뒷골목 (프라다·미우미우 건축 거리)', lat:35.6645, lng:139.7150, cat:'sight', hours:'상시', tags:'헤르조그&드 뫼롱 프라다, 미우미우, 요지 야마모토 · 해 질 녘 조명'},
+  jingumae_st:  {name:'메이지진구마에역 (치요다선)', lat:35.6692, lng:139.7050, cat:'transit', hours:'—', tags:'치요다선 → 아카사카 3역 직통 7분'},
+  ota:          {name:'오타 기념 미술관 (太田記念美術館)', lat:35.6697, lng:139.7055, cat:'museum', hours:'10:30~17:30 (입관 17:00) · 월 휴관 · 10/25 개관', tags:'우키요에 전문 미술관 · 전시 「葛飾応為 吉原格子先之図 — 夜景の系譜」(10/6~12/6) · 입장료 현금만 · 神宮前1-10-10 라포레 옆', warn:'현금 필요 (약 1,000~1,300엔)'},
+  yoyogi:       {name:'요요기 공원', lat:35.6712, lng:139.6950, cat:'park', hours:'상시 개방 · 무료', tags:'54ha 도심 숲과 잔디 · 일요일엔 거리 공연·로커빌리 댄서(하라주쿠문 쪽 정오 전후)·플리마켓 · 분수 광장'},
+  shibuya:      {name:'시부야역', lat:35.6580, lng:139.7016, cat:'transit', hours:'—', tags:'도요코선 · 긴자선 → 아카사카미츠케 3역'},
+  tsite:        {name:'다이칸야마 T-SITE (츠타야 서점)', lat:35.6497, lng:139.6998, cat:'shop', hours:'9:00~22:00', tags:'서점 3동 · 안진 라운지 · 잡지·소품·문구 · 주변 Log Road 소품샵은 11시 개점'},
+  asakura:      {name:'구 아사쿠라 가 주택 (旧朝倉家住宅)', lat:35.6490, lng:139.7005, cat:'sight', hours:'10:00~18:00 (11~2월 ~16:30) · 100엔 · 월 휴관', tags:'1919년 다이쇼 시대 목조 저택과 회유식 정원 · 중요문화재 · T-SITE 3분'},
+  daikanyama_st:{name:'다이칸야마역 (도요코선)', lat:35.6484, lng:139.7032, cat:'transit', hours:'—', tags:'시부야 1역'},
+  miyashita:    {name:'MIYASHITA PARK · 시부야 요코초', lat:35.6612, lng:139.7025, cat:'shop', hours:'상점 11:00~21:00 · 옥상 공원 8:00~23:00', tags:'공원 위에 얹은 저층 쇼핑몰 · 옥상 잔디·스케이트장 · 스타벅스·소품샵'},
+  takeshita:    {name:'다케시타도리 · 우라하라주쿠', lat:35.6710, lng:139.7030, cat:'shop', hours:'상점 11:00~20:00 전후', tags:'10대 문화 거리 · 크레페 · 뒷골목 우라하라의 빈티지·스트리트 브랜드'},
+  shibuya_c:    {name:'시부야 센터가이 · 스크램블 교차로', lat:35.6598, lng:139.7005, cat:'shop', hours:'PARCO 11:00~21:00 · 로프트 10:00~21:00', tags:'PARCO 6F 닌텐도 도쿄·포켓몬센터·점프숍 · 시부야 로프트 · 센터가이 · 해 질 녘 스크램블'},
+  nihombashi_st:{name:'니혼바시역 (긴자선)', lat:35.6820, lng:139.7742, cat:'transit', hours:'—', tags:'B3 출구 → 츠지한 1분'},
+  tsujihan:     {name:'츠지한 니혼바시 본점 (つじ半)', lat:35.6805, lng:139.7732, cat:'meal', hours:'11:00~21:00 (LO 20:30) · 부정기 휴무', tags:'제이타쿠동(해산물 덮밥) 梅 1,250엔~ · 먹다가 도미 다시를 부어 오차즈케로 마무리 · 카운터 · 日本橋3-1-15', warn:'점심은 1~2시간 대기, 저녁이 가장 짧음 · 부정기 휴무라 당일 확인'},
+  gyoenmae:     {name:'신주쿠교엔마에역 (마루노우치선)', lat:35.6886, lng:139.7106, cat:'transit', hours:'—', tags:'1번 출구 → 신주쿠문 5분'},
+  gyoen:        {name:'신주쿠교엔 (신주쿠문)', lat:35.6878, lng:139.7101, cat:'park', hours:'9:00~16:30 (입원 16:00) · 500엔 · 월 휴원', tags:'일본정원 → 영국식 잔디 → 센다가야문 · 게이트에서 Suica 터치 입장'},
+  meiji:        {name:'메이지진구 본전', lat:35.6764, lng:139.6993, cat:'sight', hours:'10월 5:40~16:40 · 무료', tags:'기타산도 입구로 들어가 숲길 → 본전 → 하라주쿠 쪽으로 나오기'},
+  omotesando:   {name:'오모테산도 거리·힐즈', lat:35.6668, lng:139.7085, cat:'shop', hours:'힐즈 11:00~20:00', tags:'느티나무 가로수길 · 안도 다다오 힐즈'},
+  negishi:      {name:'네기시 아오야마도리점 (ねぎし)', lat:35.6650, lng:139.7115, cat:'meal', hours:'10:30~22:00 (LO 21:30) · 연중무휴', tags:'규탄(소혀구이)+보리밥+토로로 정식 1,500~1,850엔 · 밥 리필 무료 · 오모테산도역 B2 2분 · 神宮前5-50-5 2F'},
+  catst:        {name:'캣스트리트', lat:35.6680, lng:139.7050, cat:'sight', hours:'상점 11:00~20:00 전후', tags:'하라주쿠 ↔ 시부야 골목 · 편집숍'},
+  kitsune:      {name:'Café Kitsuné Aoyama', lat:35.6659, lng:139.7140, cat:'cafe', hours:'9:00~19:00 · 부정기 휴무', tags:'골목 안 작은 정원 · 테라스 · 720엔~', warn:'일요일 줄 20분+'},
+  mameya:       {name:'Koffee Mameya Kakeru', lat:35.6679, lng:139.7102, cat:'cafe', hours:'10:00~18:00', tags:'원두 큐레이션 · 바 좌석', warn:'좌석 코스는 예약제 — 테이크아웃 위주'},
+  nezu:         {name:'네즈 미술관 (根津美術館)', lat:35.6622, lng:139.7177, cat:'museum', hours:'10:00~17:00 (입관 16:30) · 월 휴관', tags:'구마 켄고 건축 + 1만 7천㎡ 일본정원 · 특별전 「舞楽装束」 · 온라인 일시지정 1,600엔 / 당일권 1,800엔 · NEZUCAFÉ', warn:'개막 직후 주말 — e-tix 온라인 선구매 권장'},
+  okamoto:      {name:'오카모토 타로 기념관', lat:35.6633, lng:139.7160, cat:'museum', hours:'10:00~18:00 (입관 17:30) · 900엔 · 화 휴관', tags:'작가의 옛 집·아틀리에 · 작은 정원 · 네즈 미술관 5분'},
+  omotesando_st:{name:'오모테산도역', lat:35.6652, lng:139.7123, cat:'transit', hours:'—', tags:'긴자선 → 아카사카미츠케 3역 / 한조몬선 → 구단시타'},
+  kudanshita:   {name:'구단시타역', lat:35.6956, lng:139.7514, cat:'transit', hours:'—', tags:'한조몬선 → 도자이선 환승'},
+  iidabashi:    {name:'이다바시역', lat:35.7021, lng:139.7450, cat:'transit', hours:'—', tags:'카구라자카시타 바로 앞 · 난보쿠선 → 타메이케산노 직통'},
+  kagurazaka:   {name:'카구라자카도리·효고요코초', lat:35.7018, lng:139.7400, cat:'shop', hours:'일요일 12:00~19:00 보행자 천국', tags:'돌계단 골목(효고요코초·카쿠렌보요코초) · 화과자·소품·카페 · 프랑스풍 뒷골목'},
+  akagi:        {name:'아카기 신사 (赤城神社)', lat:35.7036, lng:139.7370, cat:'sight', hours:'경내 상시 · 무료', tags:'구마 켄고 리뉴얼 · 유리 본전 · 경내 아카기 카페'},
+  kuzuryu:      {name:'쿠즈류 소바 카구라자카 본점 (九頭龍蕎麦)', lat:35.7008, lng:139.7420, cat:'meal', hours:'일 12:00~21:00 (LO 20:30)', tags:'후쿠이 오로시 소바(무즙 냉소바) ~1,000엔 · 카운터 10석 · 이다바시역 3분 · 神楽坂3-3'},
+  yabusoba_ak:  {name:'도쿄 아카사카 야부소바', lat:35.6727, lng:139.7375, cat:'meal', hours:'매일 11:00~22:00 (LO 21:00)', tags:'간다 야부소바 분점 · 스다치 소바 1,540엔 · 카운터 9석 · 赤坂Biz타워 2F · 숙소 7분'},
+  tsukiji_st:   {name:'츠키지역 (히비야선)', lat:35.6665, lng:139.7720, cat:'transit', hours:'—', tags:'1·2번 출구 → 장외시장 5분'},
+  marutake:     {name:'츠키지 마루타케 본점 (丸武)', lat:35.6650, lng:139.7712, cat:'meal', hours:'월 4:00~14:30 · 공휴일·휴시일 휴무', tags:'갓 구운 타마고야키 꼬치 200엔 · 테이크아웃 · 현금만 · 築地4-10-10'},
+  tsukiji:      {name:'츠키지 장외시장', lat:35.6654, lng:139.7706, cat:'shop', hours:'가게 대부분 5~14시 · 일·공휴일 휴무 많음', tags:'해산물·건어물·칼·찻집 골목 · 월요일 정상 영업 (휴시일 캘린더 확인)'},
+  torito:       {name:'토리메시 토리토 분점 (鳥めし 鳥藤分店)', lat:35.6651, lng:139.7702, cat:'meal', hours:'8:30~13:30 · 일·공휴일·휴시일 휴무', tags:'닭 도매상 직영 오야코동·토리메시 1,000~1,500엔 · 16석 카운터 · 현금/PayPay만 · 築地4-8-6', warn:'築地本店(4-10-18)은 정육 판매점 — 식당은 分店'},
+  kitsuneya:    {name:'키츠네야 (きつねや)', lat:35.6655, lng:139.7708, cat:'meal', hours:'월 6:30~13:00 · 수·일 휴무', tags:'호르몬동(소곱창 된장조림 덮밥) 850~900엔 · 카운터 5석+스탠딩 · 줄 긺'},
+  hamarikyu:    {name:'하마리큐 은사정원', lat:35.6603, lng:139.7628, cat:'park', hours:'9:00~17:00 (입장 16:30) · 300엔 · 월 개원', tags:'바닷물 연못 · 나카지마 찻집 말차 세트 · 교통계 IC 결제 가능'},
+  bairin:       {name:'긴자 바이린 본점', lat:35.6700, lng:139.7619, cat:'meal', hours:'매일 11:30~21:00 (LO 20:00) · 1/1만 휴무', tags:'카츠동 1,400엔 · 바이린 정식 1,950엔 · 카운터 35석 · 예약 불가 · 銀座7-8-1 B1', warn:'줄 길어 11:30 개점 직후 도착 권장'},
+  ginza4:       {name:'긴자 4초메 교차점 (산책)', lat:35.6717, lng:139.7649, cat:'sight', hours:'백화점 10:30~20:00', tags:'긴자 식스 · 이토야 문구 · 긴자선 사바루 소바'},
+  glitch:       {name:'Glitch Coffee Ginza', lat:35.6690, lng:139.7685, cat:'cafe', hours:'9:00~18:00', tags:'싱글오리진 핸드드립 800~1,200엔 · U자 카운터'},
+  ginzawest:    {name:'긴자 웨스트 본점', lat:35.6712, lng:139.7598, cat:'cafe', hours:'9:00~22:00', tags:'1947년 킷사텐 · 드라이케이크·슈크림 · 리필 커피'},
+  tricolore:    {name:'트리콜로르 본점', lat:35.6701, lng:139.7649, cat:'cafe', hours:'8:00~18:00', tags:'1936년 창업 · 넬드립 · 에클레어'},
+  hibiya_park:  {name:'히비야 공원', lat:35.6738, lng:139.7560, cat:'park', hours:'상시 · 무료', tags:'1903년 일본 첫 서양식 공원 · 분수·연못 · 긴자에서 도보 15분'},
+  hibiya_st:    {name:'히비야역 (치요다선)', lat:35.6747, lng:139.7598, cat:'transit', hours:'—', tags:'치요다선 → 아카사카 3역'},
+};
+Object.keys(P).forEach(k=>P[k].id=k);
+
+/* 일정 — 시각은 분(0~1440). 이동은 ['move', 수단, from, to, 시작, 끝, 설명, via(선택)] */
+const DAYS = [
+ { n:1, date:'10/24 (토)', short:'토', title:'하네다 → 아카사카 동네 → 롯폰기 미술관 → 아자부주반 → 아카사카', t0:660, t1:1320,
+   lead:'숙소 반경 2km 안에서만 움직입니다. 아카사카 골목(시로타에·토요카와 이나리·히에 신사)을 걸어서 돌고, 롯폰기까지 걸어가 21_21과 국립신미술관(토요일 20시까지)을 본 뒤, 오에도선 한 정거장 아자부주반에서 타이야키와 사라시나 소바로 저녁. 난보쿠선 2역이면 숙소입니다.',
+   items:[
+    ['stay','hnd',660,710,'도착·입국 심사 (Visit Japan Web QR 준비 시 30분)'],
+    ['move','transit','hnd','shimbashi',710,745,'게이큐 → 아사쿠사선 직통 약 35분 · 610엔',[[35.6285,139.7388],[35.6397,139.7400],[35.6560,139.7540]]],
+    ['move','transit','shimbashi','akasaka_mitsuke',745,757,'긴자선 환승 3역 약 7분 · 180엔',[[35.6700,139.7498],[35.6736,139.7414]]],
+    ['move','walk','akasaka_mitsuke','hostel',757,762,'도보 3분'],
+    ['stay','hostel',762,775,'짐 맡기기 (체크인은 15시~)'],
+    ['move','walk','hostel','shirotae',775,778,'도보 3분'],
+    ['stay','shirotae',778,795,'시로타에 레어치즈케이크 (테이크아웃 또는 喫茶 · 현금) — 일·월 휴무라 오늘만'],
+    ['move','walk','shirotae','toyokawa',795,803,'도보 8분'],
+    ['stay','toyokawa',803,820,'토요카와 이나리 — 여우상 참배길'],
+    ['move','walk','toyokawa','men_tomo',820,835,'아카사카 상점가 지나 도보 15분'],
+    ['stay','men_tomo',835,870,'점심 · 멘도코로 토모 라멘 (식권기)'],
+    ['move','walk','men_tomo','hie',870,877,'도보 7분'],
+    ['stay','hie',877,900,'히에 신사 — 도리이 터널 계단 (17시 폐문)'],
+    ['move','walk','hie','d2121',900,920,'아카사카 5초메 골목 → 도쿄 미드타운 도보 20분'],
+    ['stay','d2121',920,985,'21_21 DESIGN SIGHT (1,700엔)'],
+    ['move','walk','d2121','midtown',985,988,'도보 3분'],
+    ['free','midtown',988,1005,'미드타운 가든 잔디밭 휴식'],
+    ['move','walk','midtown','nact',1005,1012,'도보 7분'],
+    ['stay','nact',1012,1090,'국립신미술관 — 건축·로비 산책 + 전시 선택 (토 20시까지)'],
+    ['move','walk','nact','roppongi',1090,1098,'도보 8분'],
+    ['move','transit','roppongi','azabujuban_st',1098,1102,'오에도선 1역 · 180엔'],
+    ['move','walk','azabujuban_st','naniwaya',1102,1104,'도보 1분'],
+    ['stay','naniwaya',1104,1120,'나니와야 타이야키 (19시 마감 · 저녁엔 줄 짧음 · 현금)'],
+    ['free','azabu_street',1120,1150,'아자부주반 상점가 산책 (노포 과자점·센베이)'],
+    ['move','walk','azabu_street','sarashina',1150,1156,'도보 6분'],
+    ['stay','sarashina',1156,1200,'저녁 · 사라시나 호리이 흰 소바 (LO 20:00)'],
+    ['move','walk','sarashina','azabujuban_st',1200,1206,'도보 6분'],
+    ['move','transit','azabujuban_st','tameike',1206,1213,'난보쿠선 2역 약 6분 · 180엔',[[35.6640,139.7395]]],
+    ['move','walk','tameike','hostel',1213,1220,'도보 7분'],
+    ['stay','hostel',1220,1320,'체크인 · 대욕장·사우나 · 휴식'],
+   ]},
+ { n:2, date:'10/25 (일)', short:'일', title:'로스터리(아침) → 다이칸야마 → 시부야 → 캣스트리트·하라주쿠 → 오모테산도·아오야마 → 시부야 야경 → 니혼바시 츠지한 → 아카사카', t0:420, t1:1320,
+   lead:'일요일은 가게 구경 위주로 시부야·하라주쿠·오모테산도·아오야마를 걸어서 잇습니다. 아침은 나카메구로 로스터리(주말 9시 전 한산, AirWAIT 정리권), 가게들이 11시에 열기 전까지는 다이칸야마 T-SITE와 다이쇼 시대 저택을 보고, 11시부터 MIYASHITA PARK → 캣스트리트 → 다케시타·우라하라주쿠 → 오모테산도 → 아오야마 순으로 북상한 뒤, 해 질 녘(16:55) 시부야로 돌아와 PARCO·로프트·스크램블을 보고 긴자선으로 니혼바시 츠지한(해산물 덮밥, 저녁이 대기 가장 짧음)에서 저녁 후 긴자선 14분으로 귀가. 이동은 거의 도보, 교통 약 650엔, 입장료 100엔.',
+   items:[
+    ['stay','hostel',450,455,'출발 (AirWAIT로 로스터리 정리권 등록)'],
+    ['move','walk','hostel','akasaka_st',455,462,'도보 7분'],
+    ['move','transit','akasaka_st','kasumigaseki',462,467,'치요다선 2역',[[35.6745,139.7450]]],
+    ['move','transit','kasumigaseki','nakameguro_st',469,485,'히비야선 직통 약 16분 · 합계 260엔',[[35.6627,139.7312],[35.6540,139.7170]]],
+    ['move','walk','nakameguro_st','roastery',485,499,'메구로강 따라 도보 14분'],
+    ['stay','roastery',499,550,'아침 · 스타벅스 리저브 로스터리 (Princi 빵·커피 · 오전 한산)'],
+    ['move','walk','roastery','tsite',550,565,'구 야마테도리 오르막 도보 15분'],
+    ['stay','tsite',565,600,'다이칸야마 T-SITE — 서점·잡지·문구 (9시 개점)'],
+    ['move','walk','tsite','asakura',600,603,'도보 3분'],
+    ['stay','asakura',603,630,'구 아사쿠라 가 주택 — 다이쇼 저택·정원 (100엔)'],
+    ['move','walk','asakura','daikanyama_st',630,635,'도보 5분'],
+    ['move','transit','daikanyama_st','shibuya',635,639,'도요코선 1역 · 180엔'],
+    ['move','walk','shibuya','miyashita',639,647,'도보 8분'],
+    ['free','miyashita',647,680,'MIYASHITA PARK — 11시 개점, 옥상 공원·소품샵'],
+    ['move','walk','miyashita','catst',680,690,'캣스트리트 남쪽 입구 도보 10분'],
+    ['free','catst',690,730,'캣스트리트 — 편집숍·빈티지·카페 (Kitsuné·Mameya 자유)'],
+    ['move','walk','catst','takeshita',730,738,'도보 8분'],
+    ['free','takeshita',738,775,'다케시타도리 · 우라하라주쿠 뒷골목'],
+    ['move','walk','takeshita','negishi',775,790,'오모테산도 거리 따라 도보 15분'],
+    ['stay','negishi',790,835,'점심 · 네기시 규탄·보리밥·토로로 정식 (대기 10~15분 포함)'],
+    ['move','walk','negishi','omotesando',835,840,'도보 5분'],
+    ['free','omotesando',840,890,'오모테산도 — Kiddy Land · 힐즈 · 가로수길'],
+    ['move','walk','omotesando','aoyama_lanes',890,900,'도보 10분'],
+    ['free','aoyama_lanes',900,945,'미나미아오야마 — Spiral · 프라다·미우미우 건축 · 꼼데가르송 · 소품샵'],
+    ['move','walk','aoyama_lanes','omotesando_st',945,950,'도보 5분'],
+    ['move','transit','omotesando_st','shibuya',950,955,'긴자선 2역 · 180엔',[[35.6630,139.7080]]],
+    ['move','walk','shibuya','shibuya_c',955,960,'도보 5분'],
+    ['free','shibuya_c',960,1060,'시부야 — PARCO(닌텐도·포켓몬센터) · 로프트 · 센터가이 · 해 질 녘 스크램블 교차로'],
+    ['move','walk','shibuya_c','shibuya',1060,1065,'도보 5분'],
+    ['move','transit','shibuya','nihombashi_st',1065,1091,'긴자선 직통 약 26분 · 260엔',[[35.6652,139.7123],[35.6770,139.7372],[35.6663,139.7583],[35.6717,139.7649]]],
+    ['move','walk','nihombashi_st','tsujihan',1091,1093,'B3 출구 도보 1분'],
+    ['stay','tsujihan',1093,1140,'저녁 · 츠지한 제이타쿠동 (저녁 대기 짧음 · 휴무면 아카사카 야부소바)'],
+    ['move','walk','tsujihan','nihombashi_st',1140,1142,'도보 1분'],
+    ['move','transit','nihombashi_st','akasaka_mitsuke',1142,1156,'긴자선 직통 약 14분 · 210엔',[[35.6717,139.7649],[35.6663,139.7583],[35.6736,139.7414]]],
+    ['move','walk','akasaka_mitsuke','hostel',1156,1159,'도보 3분'],
+    ['stay','hostel',1159,1320,'귀가 · 대욕장 · 휴식'],
+   ]},
+ { n:3, date:'10/26 (월)', short:'월', title:'츠키지 장외시장 → 하마리큐 → 긴자 → 히비야 공원 → 아카사카 → 하네다', t0:450, t1:1215,
+   lead:'월요일은 신주쿠교엔·네즈가 쉬지만 츠키지 장외시장·하마리큐·긴자는 엽니다. 숙소에서 히비야선으로 15분, 이후 츠키지 → 하마리큐 → 긴자 → 히비야 공원은 전부 도보로 이어지고, 히비야에서 치요다선 3역이면 숙소입니다. 바이린은 11:30 개점 직후 들어가 줄을 피합니다.',
+   items:[
+    ['stay','hostel',450,465,'체크아웃 · 프런트 짐 보관'],
+    ['move','walk','hostel','akasaka_mitsuke',465,470,'도보 3분'],
+    ['move','transit','akasaka_mitsuke','kasumigaseki',470,475,'마루노우치선 2역',[[35.6745,139.7450]]],
+    ['move','transit','kasumigaseki','tsukiji_st',477,485,'히비야선 3역 · 합계 210엔',[[35.6747,139.7598],[35.6717,139.7649],[35.6694,139.7673]]],
+    ['move','walk','tsukiji_st','marutake',485,490,'도보 5분'],
+    ['stay','marutake',490,500,'마루타케 갓 구운 타마고야키 꼬치 (현금)'],
+    ['free','tsukiji',500,510,'장외시장 골목 한 바퀴 (8:30 개점 대기)'],
+    ['stay','torito',510,555,'아침 · 토리토 분점 오야코동 (현금/PayPay) — 대안 키츠네야 호르몬동'],
+    ['free','tsukiji',555,590,'장외시장 구경 · 건어물·칼·찻집'],
+    ['move','walk','tsukiji','hamarikyu',590,602,'도보 12분'],
+    ['stay','hamarikyu',602,675,'하마리큐 은사정원 · 나카지마 찻집 말차'],
+    ['move','walk','hamarikyu','bairin',675,690,'도보 15분'],
+    ['stay','bairin',690,735,'점심 · 긴자 바이린 (11:30 개점 직후)'],
+    ['move','walk','bairin','ginza4',735,741,'도보 6분'],
+    ['free','ginza4',741,800,'긴자 산책 · 쇼핑 (자유)'],
+    ['move','walk','ginza4','glitch',800,806,'도보 6분'],
+    ['stay','glitch',806,830,'커피 · Glitch (자유)'],
+    ['move','walk','glitch','hibiya_park',830,845,'긴자 → 히비야 도보 15분'],
+    ['free','hibiya_park',845,875,'히비야 공원 — 분수·연못 (무료)'],
+    ['move','walk','hibiya_park','hibiya_st',875,880,'도보 5분'],
+    ['move','transit','hibiya_st','akasaka_st',880,888,'치요다선 3역 약 7분 · 180엔',[[35.6745,139.7520],[35.6745,139.7450]]],
+    ['move','walk','akasaka_st','hostel',888,895,'도보 7분'],
+    ['stay','hostel',895,960,'짐 회수 · 정리 (여유 1시간 — 대욕장 가능)'],
+    ['move','walk','hostel','akasaka_mitsuke',960,965,'도보 3분'],
+    ['move','transit','akasaka_mitsuke','shimbashi',965,975,'긴자선 3역 약 7분',[[35.6736,139.7414],[35.6700,139.7498]]],
+    ['move','transit','shimbashi','hnd',977,1015,'아사쿠사선 → 게이큐 직통 약 38분 · 610엔',[[35.6560,139.7540],[35.6397,139.7400],[35.6285,139.7388]]],
+    ['stay','hnd',1015,1205,'체크인(18:05 마감) · 에도코지 저녁 · 20:05 출발'],
+   ]},
+];
+
+/* 동선 주변 자유 선택 후보 (일자별) */
+const OPT = {
+  cafe:{name:'카페', emoji:'☕', items:{1:['shirotae'], 2:['roastery','kitsune','mameya'], 3:['glitch','ginzawest','tricolore']}},
+  meal:{name:'식사·대안', emoji:'🍜', items:{1:['men_tomo','murosaba','naniwaya','sarashina'], 2:['roastery','ueshima','negishi','tsujihan','yabusoba_ak','afuri'], 3:['marutake','torito','kitsuneya','bairin']}},
+};
+const CATNAME={hotel:'숙소',meal:'식사',cafe:'카페',park:'공원',sight:'구경',shop:'산책·쇼핑',museum:'미술관',transit:'역·공항'};
+const EMOJI={hotel:'🏠',meal:'🍜',cafe:'☕',park:'🌳',sight:'🏮',shop:'🛍️',museum:'🖼️',transit:'🚉'};
+
+/* ===================== 유틸 ===================== */
+const WALK_MPM=70, ROUTE_FACTOR=1.3;
+function hav(a,b){ const R=6371000,toR=Math.PI/180; const dLat=(b.lat-a.lat)*toR,dLng=(b.lng-a.lng)*toR; const s=Math.sin(dLat/2)**2+Math.cos(a.lat*toR)*Math.cos(b.lat*toR)*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(s)); }
+const walkDist=(a,b)=>hav(a,b)*ROUTE_FACTOR;
+const walkMinEst=(a,b)=>Math.max(1,Math.ceil(walkDist(a,b)/WALK_MPM));
+const LEG_LS='tokyo-legs-v1'; let legCache={};
+try{ legCache=JSON.parse(localStorage.getItem(LEG_LS)||'{}')||{}; }catch(e){ legCache={}; }
+const legKey=(a,b)=>`${a.lat.toFixed(5)},${a.lng.toFixed(5)}>${b.lat.toFixed(5)},${b.lng.toFixed(5)}`;
+const legInfo=(a,b)=>{ const l=legCache[legKey(a,b)]; return (l&&l.src==='google')? l : null; };
+const walkMin=(a,b)=>{ const l=legInfo(a,b); return l? Math.max(1,l.mins) : walkMinEst(a,b); };
+const fmt=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const short=n=>n.replace(/\s*\(.*?\)/g,'').trim();
+function links(p){
+  const q=encodeURIComponent(p.name.replace(/\s*\(.*?\)/g,'').trim());
+  const google=`https://www.google.com/maps/search/?api=1&query=${q}%20${p.lat},${p.lng}`;
+  const apple=`https://maps.apple.com/?q=${q}&ll=${p.lat},${p.lng}`;
+  const tabelog=`https://tabelog.com/kr/rstLst/?sk=${q}`;
+  return `<a href="${google}" target="_blank" rel="noopener">Google 지도</a><a href="${apple}" target="_blank" rel="noopener">Apple 지도</a>${(p.cat==='meal'||p.cat==='cafe')?`<a href="${tabelog}" target="_blank" rel="noopener">타베로그</a>`:''}`;
+}
+
+/* ===================== 일정 계산 ===================== */
+function viaPath(from,to,via,total){
+  const pts=[from,...(via||[]).map(v=>({lat:v[0],lng:v[1]})),to];
+  const d=[0]; for(let i=1;i<pts.length;i++) d.push(d[i-1]+hav(pts[i-1],pts[i]));
+  const tot=d[d.length-1]||1;
+  return pts.map((q,i)=>({lat:q.lat,lng:q.lng,t:total*d[i]/tot,m:'x'}));
+}
+function buildPlan(dayN){
+  const day=DAYS.find(d=>d.n===dayN)||DAYS[0];
+  const segs=[], notes=[];
+  day.items.forEach(it=>{
+    if(it[0]==='stay') segs.push({kind:'stay', place:P[it[1]], start:it[2], end:it[3], label:it[4]});
+    else if(it[0]==='free') segs.push({kind:'free', place:P[it[1]], start:it[2], end:it[3], label:it[4]});
+    else { const from=P[it[2]], to=P[it[3]], mode=it[1]; const path=viaPath(from,to,it[7],it[5]-it[4]); path.forEach(q=>q.m=mode);
+      segs.push({kind:'move', mode, from, to, start:it[4], end:it[5], path, label:it[6]}); }
+  });
+  const stops=[]; segs.forEach(s=>{ if(s.kind==='stay' && s.place.cat!=='transit' && !stops.includes(s.place)) stops.push(s.place); });
+  const stations=[]; segs.forEach(s=>{ if(s.kind==='move'&&s.mode==='transit'){ [s.from,s.to].forEach(p=>{ if(p.cat==='transit'&&!stations.includes(p)) stations.push(p); }); } });
+  return {day, segs, notes, stops, stations, t0:day.t0, end:segs[segs.length-1].end, t1:Math.max(day.t1, segs[segs.length-1].end)};
+}
+function posAt(plan,t){
+  for(const s of plan.segs){
+    if(t<s.start) continue;
+    if(t>=s.end && s!==plan.segs[plan.segs.length-1]) continue;
+    if(s.kind!=='move') return {lat:s.place.lat, lng:s.place.lng, seg:s};
+    const el=t-s.start, p=s.path;
+    for(let i=1;i<p.length;i++){ if(el<=p[i].t){ const a=p[i-1], b=p[i], f=(b.t===a.t)?1:(el-a.t)/(b.t-a.t); return {lat:a.lat+(b.lat-a.lat)*f, lng:a.lng+(b.lng-a.lng)*f, seg:s}; } }
+    return {lat:s.to.lat, lng:s.to.lng, seg:s};
+  }
+  const f=plan.segs[0]; return {lat:f.place.lat, lng:f.place.lng, seg:null, before:true};
+}
+
+/* ===================== 상태 ===================== */
+const DEFAULT={day:1, t:{1:660,2:480,3:450}, picks:[], cats:[], showRoute:true, showStations:true};
+let state={...DEFAULT};
+try{ const s=JSON.parse(localStorage.getItem('tokyo-app-v1')||'null'); if(s&&typeof s==='object'){ state={...DEFAULT,...s, t:{...DEFAULT.t,...(s.t||{})}}; if(!Array.isArray(state.picks)) state.picks=[]; if(!Array.isArray(state.cats)) state.cats=[]; if(![1,2,3].includes(state.day)) state.day=1; } }catch(e){}
+function save(){ try{ localStorage.setItem('tokyo-app-v1',JSON.stringify(state)); }catch(e){} }
+const curT=()=>+state.t[state.day];
+const setT=v=>{ state.t[state.day]=v; };
+let plan=null;
+const CSSV=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim()||'#888';
+
+/* ===================== Google 지도 ===================== */
+const BUILT_IN_KEY='__GMAPS_KEY__';
+const mapsKey=()=> /^__GMAPS/.test(BUILT_IN_KEY) ? '' : BUILT_IN_KEY;
+let gmap=null, HtmlMarker=null; let mapReady=false;
+const LY={stops:[],cats:[],polys:[],stations:[],now:null,user:[],trav:null,travC:null,trail:null};
+function mapError(msg){ document.getElementById('mapErrorMsg').textContent=msg; document.getElementById('mapError').classList.add('show'); }
+function loadGoogle(key){
+  return new Promise((res,rej)=>{
+    let done=false;
+    window.gm_authFailure=()=>{ if(!done){done=true; rej(new Error('auth'));} else mapError('Google Maps API 키 인증에 실패했습니다. 키 제한(리퍼러·API)과 Maps JavaScript API 사용 설정을 확인하세요.'); };
+    window.__gmReady=()=>{ if(!done){done=true; res();} };
+    const sc=document.createElement('script');
+    sc.src='https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(key)+'&v=weekly&language=ko&region=JP&loading=async&callback=__gmReady';
+    sc.async=true; sc.onerror=()=>{ if(!done){done=true; rej(new Error('load'));} };
+    document.head.appendChild(sc);
+    setTimeout(()=>{ if(!done){done=true; rej(new Error('timeout'));} },15000);
+  });
+}
+function initMap(){
+  gmap=new google.maps.Map(document.getElementById('map'),{
+    center:{lat:35.69,lng:139.76}, zoom:12, disableDefaultUI:true, gestureHandling:'greedy', clickableIcons:false,
+    styles:[{featureType:'poi.business',stylers:[{visibility:'off'}]},{featureType:'transit.station',elementType:'labels.icon',stylers:[{visibility:'on'}]}]
+  });
+  HtmlMarker=class extends google.maps.OverlayView{
+    constructor(pos,html,cls,onClick,z){ super(); this.pos=pos; this.html=html; this.cls=cls; this.onClick=onClick; this.z=z||1; }
+    onAdd(){ const d=document.createElement('div'); d.className='gm '+(this.onClick?'click ':'')+(this.cls||''); d.innerHTML=this.html; d.style.zIndex=this.z;
+      if(this.onClick){ d.addEventListener('click',e=>{ e.stopPropagation(); this.onClick(); }); google.maps.OverlayView.preventMapHitsAndGesturesFrom(d); }
+      this.div=d; this.getPanes()[this.onClick?'overlayMouseTarget':'overlayLayer'].appendChild(d); }
+    draw(){ const pr=this.getProjection(); if(!pr||!this.div) return; const p=pr.fromLatLngToDivPixel(new google.maps.LatLng(this.pos.lat,this.pos.lng)); if(!p) return; this.div.style.left=p.x+'px'; this.div.style.top=p.y+'px'; }
+    onRemove(){ if(this.div&&this.div.parentNode) this.div.parentNode.removeChild(this.div); this.div=null; }
+    setPosition(pos){ this.pos=pos; this.draw(); }
+    setHtml(h){ this.html=h; if(this.div) this.div.innerHTML=h; }
+  };
+  gmap.addListener('click',()=>closeCard());
+  mapReady=true;
+}
+const clearL=a=>{ a.forEach(o=>o.setMap(null)); a.length=0; };
+function fitPad(){ return {top:150, bottom:sheetPx()+24, left:28, right:28}; }
+function fitTo(points){ if(!mapReady||!points.length) return; const b=new google.maps.LatLngBounds(); points.forEach(p=>b.extend({lat:p.lat,lng:p.lng})); if(points.length===1){ gmap.panTo(points[0]); if(gmap.getZoom()<16) gmap.setZoom(16); return; } gmap.fitBounds(b,fitPad()); }
+function drawRoute(){
+  if(!mapReady) return;
+  clearL(LY.polys); clearL(LY.stops); clearL(LY.stations);
+  if(!state.showRoute) return;
+  plan.segs.filter(s=>s.kind==='move').forEach(s=>{
+    const sub=s.mode==='transit', col=CSSV('--plan');
+    const pl=new google.maps.Polyline({path:s.path.map(p=>({lat:p.lat,lng:p.lng})), map:gmap, strokeColor:col, strokeWeight:6, strokeOpacity:sub?0:.4, zIndex:5, clickable:false,
+      icons: sub?[{icon:{path:'M 0,-1 0,1',strokeOpacity:.45,strokeWeight:6,strokeColor:col,scale:3},offset:'0',repeat:'14px'}]:null});
+    LY.polys.push(pl);
+  });
+  if(state.showStations) plan.stations.forEach(p=>{ const m=new HtmlMarker({lat:p.lat,lng:p.lng},`<div class="stm" title="${esc(p.name)}"></div>`,'',()=>openCard(p),30); m.setMap(gmap); LY.stations.push(m); });
+  plan.stops.forEach((p,i)=>{
+    const stays=plan.segs.filter(x=>x.kind==='stay'&&x.place===p);
+    const tm=stays.map(x=>`${fmt(x.start)}–${fmt(x.end)}`).join(' · ');
+    const html=`<div class="pin-wrap"><div class="gm-lbl">${esc(short(p.name))}${tm?`<small>${tm}</small>`:''}</div><svg width="30" height="38" viewBox="0 0 30 38" aria-hidden="true"><path d="M15 37C15 37 2 21 2 13a13 13 0 0 1 26 0c0 8-13 24-13 24z" fill="${CSSV('--'+p.cat)}" stroke="#fff" stroke-width="2.5"/><text x="15" y="17.5" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Noto Sans KR,sans-serif">${i+1}</text></svg></div>`;
+    const m=new HtmlMarker({lat:p.lat,lng:p.lng},html,'ab',()=>openCard(p),50+i); m.setMap(gmap); LY.stops.push(m);
+  });
+}
+const optList=k=>(OPT[k].items[state.day]||[]).map(id=>P[id]);
+function drawCats(){
+  if(!mapReady) return;
+  clearL(LY.cats);
+  const inRoute=new Set(state.showRoute? plan.stops.map(p=>p.id) : []);
+  state.cats.forEach(cat=>{
+    optList(cat).forEach(p=>{
+      if(inRoute.has(p.id)) return;
+      const sel=state.picks.includes(p.id);
+      const m=new HtmlMarker({lat:p.lat,lng:p.lng},`<div class="dotm ${sel?'sel':''}" style="--c:${CSSV('--'+p.cat)}"><i></i><span>${esc(short(p.name))}</span></div>`,'al',()=>openCard(p),20); m.setMap(gmap); LY.cats.push(m);
+    });
+  });
+}
+function traveledPath(t){
+  const pts=[];
+  for(const s of plan.segs){
+    if(s.kind!=='move') continue;
+    if(s.end<=t){ s.path.forEach(q=>pts.push({lat:q.lat,lng:q.lng})); continue; }
+    if(s.start<t){ const el=t-s.start;
+      for(let i=0;i<s.path.length;i++){ const q=s.path[i];
+        if(q.t<=el) pts.push({lat:q.lat,lng:q.lng});
+        else { const a=s.path[i-1]||q, f=(q.t===a.t)?1:(el-a.t)/(q.t-a.t); pts.push({lat:a.lat+(q.lat-a.lat)*f,lng:a.lng+(q.lng-a.lng)*f}); break; } } }
+    break;
+  }
+  return pts;
+}
+function drawNow(t){
+  if(!mapReady) return;
+  const p=posAt(plan,t);
+  if(!LY.now){ LY.now=new HtmlMarker({lat:p.lat,lng:p.lng},'<div class="nowm" title="선택한 시각의 예상 위치"></div>','',null,200); LY.now.setMap(gmap); }
+  else LY.now.setPosition({lat:p.lat,lng:p.lng});
+  if(!LY.trav){ LY.travC=new google.maps.Polyline({map:gmap, strokeColor:'#ffffff', strokeWeight:9, strokeOpacity:.9, zIndex:6, clickable:false}); LY.trav=new google.maps.Polyline({map:gmap, strokeColor:CSSV('--now'), strokeWeight:5, strokeOpacity:1, zIndex:7, clickable:false}); }
+  const tp=traveledPath(t); LY.travC.setPath(tp); LY.trav.setPath(tp);
+  return p;
+}
+
+/* 실제 GPS 이동 궤적 */
+const TRAIL_LS='tokyo-trail-v1'; let trail=[];
+try{ trail=JSON.parse(localStorage.getItem(TRAIL_LS)||'[]')||[]; if(!Array.isArray(trail)) trail=[]; }catch(e){ trail=[]; }
+function trailDist(){ let d=0; for(let i=1;i<trail.length;i++) d+=hav(trail[i-1],trail[i]); return Math.round(d); }
+function addTrailPoint(pos){
+  if(pos.acc>60) return;
+  const last=trail[trail.length-1]; if(last && hav(last,pos)<8) return;
+  trail.push({lat:+pos.lat.toFixed(6), lng:+pos.lng.toFixed(6), ts:Date.now()}); if(trail.length>8000) trail.shift();
+  try{ localStorage.setItem(TRAIL_LS,JSON.stringify(trail)); }catch(e){}
+  drawTrail(); renderTrailRow();
+}
+function drawTrail(){
+  if(!mapReady) return;
+  if(!LY.trail) LY.trail=new google.maps.Polyline({map:gmap, strokeColor:CSSV('--me'), strokeOpacity:0, zIndex:7, clickable:false,
+    icons:[{icon:{path:google.maps.SymbolPath.CIRCLE, scale:2.6, fillColor:CSSV('--me'), fillOpacity:.95, strokeOpacity:0}, offset:'0', repeat:'9px'}]});
+  LY.trail.setPath(trail.map(q=>({lat:q.lat,lng:q.lng})));
+}
+function clearTrail(){ trail=[]; try{ localStorage.removeItem(TRAIL_LS); }catch(e){} drawTrail(); renderTrailRow(); }
+function renderTrailRow(){
+  const el=document.getElementById('trailrow'); if(!el) return;
+  if(!trail.length){ el.innerHTML=''; return; }
+  const d=trailDist(), t0=new Date(trail[0].ts), t1=new Date(trail[trail.length-1].ts), hhmm=x=>`${String(x.getHours()).padStart(2,'0')}:${String(x.getMinutes()).padStart(2,'0')}`;
+  el.innerHTML=`<div class="trail"><span>◎ 내 실제 이동 궤적 <b>${d>=1000?(d/1000).toFixed(2)+'km':d+'m'}</b> · ${hhmm(t0)}–${hhmm(t1)} · ${trail.length}개 지점</span><button type="button" id="trailFit">보기</button><button type="button" id="trailClear">지우기</button></div>`;
+  document.getElementById('trailFit').onclick=()=>{ fitTo(trail); setSheet('peek'); };
+  document.getElementById('trailClear').onclick=()=>{ if(confirm('기록된 이동 궤적을 지울까요?')) clearTrail(); };
+}
+
+/* ===================== 실제 도보 경로 (Google Routes) ===================== */
+function detailPaths(plan){
+  plan.segs.filter(s=>s.kind==='move'&&s.mode==='walk').forEach(s=>{
+    const out=[s.path[0]];
+    for(let i=1;i<s.path.length;i++){
+      const a=s.path[i-1], b=s.path[i];
+      const li=legInfo(a,b);
+      if(li && li.path && li.path.length>2){
+        const pts=li.path, d=[0];
+        for(let k=1;k<pts.length;k++) d.push(d[k-1]+hav({lat:pts[k-1][0],lng:pts[k-1][1]},{lat:pts[k][0],lng:pts[k][1]}));
+        const tot=d[d.length-1]||1;
+        for(let k=1;k<pts.length;k++) out.push({lat:pts[k][0],lng:pts[k][1],t:a.t+(b.t-a.t)*d[k]/tot,m:'walk'});
+        out.push({...b}); continue;
+      }
+      out.push(b);
+    }
+    s.path=out;
+  });
+}
+function missingLegs(plan){
+  const need=[], seen=new Set();
+  plan.segs.filter(s=>s.kind==='move'&&s.mode==='walk').forEach(s=>{
+    for(let i=1;i<s.path.length;i++){ const a=s.path[i-1], b=s.path[i];
+      if(a.lat===b.lat&&a.lng===b.lng) continue;
+      const k=legKey(a,b); if(seen.has(k)) continue; seen.add(k);
+      const c=legCache[k]; if(c && (c.src==='google' || (c.src==='none' && Date.now()-c.ts<86400000))) continue;
+      need.push([a,b]);
+    }
+  });
+  return need;
+}
+let routesLib=null, dirSvc=null, legBusy=false, legFailNote='';
+async function fetchLeg(a,b){
+  const o={lat:a.lat,lng:a.lng}, d={lat:b.lat,lng:b.lng};
+  try{
+    if(!routesLib) routesLib=await google.maps.importLibrary('routes');
+    const {Route}=routesLib;
+    const res=await Route.computeRoutes({origin:o, destination:d, travelMode:'WALKING', fields:['path','durationMillis','distanceMeters']});
+    const r=res&&res.routes&&res.routes[0];
+    if(r&&r.path&&r.path.length>1) return {src:'google', mins:Math.max(1,Math.round((Number(r.durationMillis)||0)/60000)), dist:r.distanceMeters, path:r.path.map(q=>[+q.lat().toFixed(5),+q.lng().toFixed(5)])};
+  }catch(e){ console.warn('Routes JS:',e&&e.message||e); }
+  try{
+    if(google.maps.DirectionsService){
+      dirSvc=dirSvc||new google.maps.DirectionsService();
+      const res=await dirSvc.route({origin:o, destination:d, travelMode:google.maps.TravelMode.WALKING});
+      const leg=res.routes[0].legs[0];
+      return {src:'google', mins:Math.max(1,Math.round(leg.duration.value/60)), dist:leg.distance.value, path:res.routes[0].overview_path.map(q=>[+q.lat().toFixed(5),+q.lng().toFixed(5)])};
+    }
+  }catch(e){ console.warn('Directions:',e&&e.message||e); }
+  return {src:'none', ts:Date.now()};
+}
+async function queueLegs(){
+  if(!mapReady||legBusy) return;
+  const need=missingLegs(plan); if(!need.length) return;
+  legBusy=true; let got=0, fail=0; const dayAtStart=state.day;
+  for(const [a,b] of need){ const r=await fetchLeg(a,b); legCache[legKey(a,b)]=r; if(r.src==='google') got++; else fail++; }
+  try{ localStorage.setItem(LEG_LS,JSON.stringify(legCache)); }catch(e){}
+  legBusy=false;
+  legFailNote = fail? '일부 도보 구간은 Google 길찾기를 받지 못해 직선 추정으로 표시됩니다(Routes API 사용 설정·키 제한 확인).' : '';
+  if((got||fail) && dayAtStart===state.day) recalc();
+}
+function legStatus(){
+  let g=0, n=0;
+  plan.segs.filter(s=>s.kind==='move'&&s.mode==='walk').forEach(s=>{ const a=s.from,b=s.to; if(a.lat===b.lat&&a.lng===b.lng) return; n++; if(legInfo(a,b)) g++; });
+  return {g,n};
+}
+
+/* ===================== 선택(가볼 곳 담기) ===================== */
+function isPicked(p){ return state.picks.includes(p.id); }
+function inPlan(p){ return plan.stops.includes(p); }
+function togglePick(p){ state.picks = isPicked(p)? state.picks.filter(x=>x!==p.id) : [...state.picks,p.id]; save(); recalc(); }
+
+/* ===================== 카드 ===================== */
+let cardPlace=null;
+function openCard(p){
+  cardPlace=p;
+  const c=document.getElementById('card');
+  const stays=plan.segs.filter(s=>s.kind==='stay'&&s.place===p);
+  const when=stays.length? stays.map(s=>`${fmt(s.start)}–${fmt(s.end)}`).join(', ') : (plan.segs.some(s=>s.kind==='free'&&s.place===p)?'자유 시간대':'');
+  let act='';
+  if(inPlan(p)) act=`<span class="btn done">일정에 포함 · ${esc(when)}</span>`;
+  else if(p.cat!=='transit') act=`<button class="btn ${isPicked(p)?'done':''}" id="cardAct">${isPicked(p)?'가볼 곳에서 빼기':'가볼 곳에 담기'}</button>`;
+  const base=P.hostel;
+  c.innerHTML=`<button class="x" id="cardX" aria-label="닫기">✕</button>
+    <span class="cat" style="--c:${CSSV('--'+p.cat)}"><i></i>${EMOJI[p.cat]} ${CATNAME[p.cat]}${when&&!inPlan(p)?' · '+esc(when):''}</span>
+    <h3>${esc(p.name)}</h3>
+    <div class="meta">${esc(p.hours)}${p.cat!=='hotel'&&p.cat!=='transit'?` · 숙소에서 ${(hav(base,p)/1000).toFixed(1)}km`:''}</div>
+    ${p.tags?`<div class="tags">${esc(p.tags)}</div>`:''}
+    ${p.warn?`<span class="warn">${esc(p.warn)}</span>`:''}
+    <div class="act">${act}<button class="btn sec" id="cardGo">지도에서 보기</button></div>
+    <div class="links">${links(p)}</div>`;
+  c.classList.add('show');
+  document.getElementById('cardX').onclick=closeCard;
+  const a=document.getElementById('cardAct'); if(a) a.onclick=()=>{ togglePick(p); openCard(p); };
+  document.getElementById('cardGo').onclick=()=>{ fitTo([p]); setSheet('peek'); };
+  if(sheetState==='peek') setSheet('half');
+  document.getElementById('body').scrollTop=0;
+}
+function closeCard(){ cardPlace=null; const c=document.getElementById('card'); c.classList.remove('show'); c.innerHTML=''; }
+
+/* ===================== 칩 / 날짜 ===================== */
+function renderChips(){
+  const el=document.getElementById('chips');
+  el.innerHTML=`<button class="chip route ${state.showRoute?'on':''}" data-chip="route">🧭 Day ${state.day} 동선</button>`+
+    `<button class="chip ${state.showStations?'on':''}" data-chip="st" style="--c:${CSSV('--transit')}"><i class="d"></i>🚉 환승역</button>`+
+    Object.entries(OPT).map(([k,c])=>`<button class="chip ${state.cats.includes(k)?'on':''}" data-chip="${k}" style="--c:${CSSV('--'+k)}"><i class="d"></i>${c.emoji} ${c.name} <span class="cnt">${optList(k).length}</span></button>`).join('');
+  el.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{
+    const k=b.dataset.chip;
+    if(k==='route'){ state.showRoute=!state.showRoute; save(); renderChips(); drawRoute(); drawCats(); if(state.showRoute) fitTo(plan.stops); return; }
+    if(k==='st'){ state.showStations=!state.showStations; save(); renderChips(); drawRoute(); return; }
+    const on=state.cats.includes(k);
+    state.cats= on? state.cats.filter(x=>x!==k) : [...state.cats,k];
+    save(); renderChips(); drawCats(); renderCatFilter();
+    if(!on) fitTo(optList(k));
+  }));
+}
+function renderDays(){
+  const el=document.getElementById('days');
+  el.innerHTML=DAYS.map(d=>`<button type="button" data-day="${d.n}" class="${state.day===d.n?'on':''}"><b>Day ${d.n}</b>${d.date}</button>`).join('');
+  el.querySelectorAll('[data-day]').forEach(b=>b.addEventListener('click',()=>setDay(+b.dataset.day)));
+}
+function setDay(n){ if(state.day===n) return; state.day=n; save(); closeCard(); recalc(); if(mapReady) fitTo(plan.stops); }
+
+/* ===================== 일정 탭 ===================== */
+function renderItinerary(t){
+  const d=plan.day;
+  document.getElementById('dayhead').innerHTML=`<h2>Day ${d.n} · ${esc(d.date)}</h2><p>${esc(d.title)}</p><p style="color:var(--muted)">${esc(d.lead)}</p>`;
+  document.getElementById('barsub').textContent=`Day ${d.n} ${d.date} · ${short(plan.stops[0].name)} → ${short(plan.stops[plan.stops.length-1].name)}`;
+  const ls=legStatus();
+  const legLine = !mapReady? '' : ls.g===ls.n? `<div class="note soft">🚶 도보 구간 ${ls.n}개 모두 Google 길찾기 경로 기준입니다.</div>` : legBusy? `<div class="note soft">🚶 Google 길찾기로 실제 도보 경로를 불러오는 중… (${ls.g}/${ls.n})</div>` : `<div class="note">${esc(legFailNote||'일부 구간은 직선 추정 경로입니다.')} (${ls.g}/${ls.n})</div>`;
+  const picks=state.picks.map(id=>P[id]).filter(p=>p&&(OPT.cafe.items[state.day]||[]).concat(OPT.meal.items[state.day]||[]).includes(p.id)&&!inPlan(p));
+  const pickLine=picks.length?`<div class="note soft">📌 오늘 가볼 곳: ${picks.map(p=>esc(short(p.name))).join(' · ')}</div>`:'';
+  document.getElementById('notes').innerHTML=legLine+pickLine+plan.notes.map(n=>`<div class="note">${esc(n)}</div>`).join('');
+  const ol=document.getElementById('it'); let idx=0;
+  ol.innerHTML=plan.segs.map(s=>{
+    const now=(t>=s.start&&t<s.end);
+    if(s.kind==='move'){ const tr=s.mode==='transit'; const li=!tr&&legInfo(s.from,s.to);
+      return `<li class="mv ${tr?'transit':''} ${now?'now':''}" data-s="${s.start}" data-e="${s.end}"><span class="t">${fmt(s.start)}</span><div class="m">${tr?'🚇':'🚶'} ${esc(s.label)} → ${esc(short(s.to.name))}${li?` · 실측 ${Math.round(li.dist)}m·${li.mins}분`:''} <a class="nav" href="https://www.google.com/maps/dir/?api=1&origin=${s.from.lat},${s.from.lng}&destination=${s.to.lat},${s.to.lng}&travelmode=${tr?'transit':'walking'}" target="_blank" rel="noopener">길안내 ↗</a></div></li>`; }
+    if(s.kind==='free') return `<li class="free ${now?'now':''}" data-s="${s.start}" data-e="${s.end}"><span class="t">${fmt(s.start)}</span><div class="m">🍂 ${esc(s.label)} <button class="nav" data-open="${s.place.id}">주변 보기</button></div></li>`;
+    const p=s.place; const numbered=p.cat!=='transit'; if(numbered && plan.stops.indexOf(p)>=0) idx=plan.stops.indexOf(p)+1;
+    return `<li class="stay ${now?'now':''}" data-id="${p.id}" data-s="${s.start}" data-e="${s.end}"><span class="t">${fmt(s.start)}</span>
+      <div class="stop"><div class="ic" style="--c:${CSSV('--'+p.cat)}">${EMOJI[p.cat]}${numbered?`<span>${idx}</span>`:''}</div>
+        <div class="body"><div class="nm">${esc(p.name)}</div><div class="sub">${esc(s.label)} · ${s.end-s.start}분 · ${fmt(s.end)} 출발</div><div class="sub2">${esc(p.hours)}</div></div></div></li>`;
+  }).join('')+`<li class="endrow">🏁 ${fmt(plan.end)} Day ${d.n} 종료</li>`;
+  ol.querySelectorAll('.stop').forEach(el=>el.addEventListener('click',()=>{ const p=P[el.closest('li').dataset.id]; openCard(p); fitTo([p]); }));
+  ol.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>{ const p=P[b.dataset.open]; if(!state.cats.includes('cafe')){ state.cats=[...state.cats,'cafe']; save(); renderChips(); drawCats(); } openCard(p); fitTo([p, ...optList('cafe')].filter(q=>hav(q,p)<1500)); }));
+  const st=plan.stops, mid=st.slice(1,-1).filter(p=>p.cat!=='hotel').slice(0,9), wp=mid.map(p=>`${p.lat},${p.lng}`).join('|');
+  document.getElementById('allroute').href=`https://www.google.com/maps/dir/?api=1&origin=${st[0].lat},${st[0].lng}&destination=${st[st.length-1].lat},${st[st.length-1].lng}&waypoints=${encodeURIComponent(wp)}&travelmode=transit`;
+}
+
+/* ===================== 장소 탭 ===================== */
+let plFilter='cafe';
+function renderCatFilter(force){
+  if(force) plFilter=force;
+  document.getElementById('catfilter').innerHTML=Object.entries(OPT).map(([k,c])=>`<button class="${plFilter===k?'on':''}" data-pf="${k}" style="--c:${CSSV('--'+k)}">${c.emoji} ${c.name}</button>`).join('');
+  document.querySelectorAll('[data-pf]').forEach(b=>b.addEventListener('click',()=>renderCatFilter(b.dataset.pf)));
+  renderPlaceList();
+}
+function renderPlaceList(){
+  const k=plFilter, c=OPT[k], list=optList(k);
+  const near=p=>{ let best=null,bd=Infinity; plan.stops.forEach(s=>{ const d=hav(s,p); if(d<bd){bd=d;best=s;} }); return {s:best,d:Math.round(bd*ROUTE_FACTOR)}; };
+  document.getElementById('plist').innerHTML=`<div class="ph"><h3 style="--c:${CSSV('--'+k)}"><i></i>${c.emoji} Day ${state.day} ${c.name}</h3><span class="when">동선에 있으면 자유롭게</span></div>
+    <ul class="pl">${list.map(p=>{ const sel=isPicked(p), fixed=inPlan(p), n=near(p);
+      return `<li class="pc ${sel||fixed?'sel':''}" style="--c:${CSSV('--'+k)}" data-id="${p.id}">
+        <div><div class="nm">${esc(p.name)}</div><div class="hrs">${esc(p.hours)}</div><div class="tg">${esc(p.tags)}</div>${p.warn?`<div class="wn">⚠ ${esc(p.warn)}</div>`:''}</div>
+        <div class="dist">${fixed?'일정 포함':`${esc(short(n.s.name))}에서<br>${n.d>=1000?(n.d/1000).toFixed(1)+'km':n.d+'m'} · ${walkMinEst(n.s,p)}분`}${fixed?'':`<button class="pick" data-pick="${p.id}" aria-label="${sel?'선택 해제':'선택'}">${sel?'✓':'+'}</button>`}</div></li>`; }).join('')}</ul>`;
+  document.querySelectorAll('.pc').forEach(li=>li.addEventListener('click',e=>{ const p=P[li.dataset.id]; if(e.target.closest('[data-pick]')){ togglePick(p); return; } openCard(p); fitTo([p]); }));
+}
+function setTab(name){ document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===name)); document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='pane-'+name)); }
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{ setTab(b.dataset.tab); if(sheetState==='peek') setSheet('half'); }));
+
+/* ===================== 시간 ===================== */
+function renderTimeline(){
+  const tl=document.getElementById('tl'); tl.innerHTML='';
+  const T0=plan.t0, tmax=plan.t1, span=tmax-T0; const r=document.getElementById('range'); r.min=T0; r.max=tmax;
+  for(let h=Math.ceil(T0/60);h*60<=tmax;h++){ tl.insertAdjacentHTML('beforeend',`<div class="tick" style="left:${(h*60-T0)/span*100}%"><span>${h}</span></div>`); }
+  plan.segs.forEach(s=>{ const l=(s.start-T0)/span*100, w=Math.max(.5,(s.end-s.start)/span*100);
+    const cls=s.kind==='move'?`blk move ${s.mode}`:s.kind==='free'?'blk free':'blk'; const bg=s.kind==='stay'?`background:${CSSV('--'+s.place.cat)}`:'';
+    tl.insertAdjacentHTML('beforeend',`<div class="${cls}" style="left:${l}%;width:${w}%;${bg}"></div>`); });
+  tl.insertAdjacentHTML('beforeend','<div class="cur" id="cur"></div>');
+}
+function renderStatus(t,p){
+  document.getElementById('clock').textContent=fmt(t);
+  const s=p&&p.seg; let html;
+  const first=plan.segs[0];
+  if(!s) html= t<first.start? `출발 전 · <b>${esc(short(first.place.name))}</b> ${fmt(first.start)} 시작` : `Day ${plan.day.n} 종료 · <b>${esc(short(plan.stops.at(-1).name))}</b> 근처`;
+  else if(s.kind==='move') html=`${s.mode==='transit'?'🚇':'🚶'} <b>${esc(short(s.to.name))}</b>(으)로 이동 중 · ${s.end-t}분 남음`;
+  else if(s.kind==='free') html=`🍂 <b>${esc(short(s.place.name))}</b> 주변 자유 · ${s.end-t}분 뒤 다음 일정`;
+  else html=`${EMOJI[s.place.cat]} <b>${esc(short(s.place.name))}</b> ${esc(s.label)} · ${fmt(s.end)}까지 ${s.end-t}분`;
+  if(userPos){ const tg=nextTarget(t); const d=Math.round(hav(userPos,tg)); html+=`<span class="geo">◎ 내 위치 → ${esc(short(tg.name))} ${d>=1000?(d/1000).toFixed(1)+'km':d+'m'}${d<4000?` · 도보 ${walkMin(userPos,tg)}분`:''}</span>`; }
+  document.getElementById('status').innerHTML=html;
+  document.getElementById('cur').style.left=`${(t-plan.t0)/(plan.t1-plan.t0)*100}%`; document.getElementById('range').value=t;
+}
+const tlEl=document.getElementById('tl');
+function tlSet(ev){ const r=tlEl.getBoundingClientRect(); const f=Math.min(1,Math.max(0,(ev.clientX-r.left)/r.width)); setT(Math.round(plan.t0+f*(plan.t1-plan.t0))); save(); tick(); }
+let tlDrag=false;
+tlEl.addEventListener('pointerdown',e=>{ tlDrag=true; tlEl.setPointerCapture(e.pointerId); tlSet(e); e.stopPropagation(); });
+tlEl.addEventListener('pointermove',e=>{ if(tlDrag) tlSet(e); });
+tlEl.addEventListener('pointerup',()=>tlDrag=false); tlEl.addEventListener('pointercancel',()=>tlDrag=false);
+document.getElementById('range').addEventListener('input',e=>{ setT(+e.target.value); save(); tick(); });
+let timer=null; const playBtn=document.getElementById('play');
+function stopPlay(){ if(timer){ clearInterval(timer); timer=null; } playBtn.textContent='▶'; }
+playBtn.addEventListener('click',()=>{ if(timer){ stopPlay(); return; } if(curT()>=plan.t1-1) setT(plan.t0); playBtn.textContent='❚❚';
+  timer=setInterval(()=>{ setT(Math.min(plan.t1,curT()+1)); tick(); if(curT()>=plan.t1){ stopPlay(); save(); } },40); });
+document.getElementById('nowBtn').addEventListener('click',()=>{
+  const d=new Date(); const key=`${d.getMonth()+1}/${d.getDate()}`; const match={'10/24':1,'10/25':2,'10/26':3}[key];
+  if(match && match!==state.day){ state.day=match; save(); recalc(); }
+  const m=d.getHours()*60+d.getMinutes(); setT(Math.min(plan.t1,Math.max(plan.t0,m))); save(); tick(); });
+
+/* ===================== 내 위치 ===================== */
+let userPos=null, geoWatch=null;
+function nextTarget(t){ const p=posAt(plan,t); if(!p.seg) return t<plan.segs[0].start?plan.segs[0].place:plan.stops[plan.stops.length-1]; return p.seg.kind==='move'?p.seg.to:p.seg.place; }
+function drawUser(){ if(!mapReady) return; clearL(LY.user); if(!userPos) return;
+  if(userPos.acc>0) LY.user.push(new google.maps.Circle({center:userPos, radius:userPos.acc, map:gmap, strokeColor:CSSV('--me'), strokeWeight:1, fillColor:CSSV('--me'), fillOpacity:.1, clickable:false}));
+  const m=new HtmlMarker({lat:userPos.lat,lng:userPos.lng},'<div class="mem" title="내 위치"></div>','',null,300); m.setMap(gmap); LY.user.push(m); }
+const geoBtn=document.getElementById('geoBtn');
+geoBtn.addEventListener('click',()=>{
+  if(geoWatch!=null){ navigator.geolocation.clearWatch(geoWatch); geoWatch=null; userPos=null; drawUser(); geoBtn.classList.remove('on'); geoBtn.setAttribute('aria-pressed','false'); tick(); return; }
+  if(!navigator.geolocation){ alert('이 브라우저는 위치 정보를 지원하지 않습니다.'); return; }
+  geoBtn.classList.add('on'); geoBtn.setAttribute('aria-pressed','true'); let first=true;
+  geoWatch=navigator.geolocation.watchPosition(pos=>{ userPos={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy||0)}; drawUser(); addTrailPoint(userPos); tick(); if(first){ first=false; fitTo([userPos]); } },
+    err=>{ alert(err.code===1?'위치 권한이 거부되었습니다. 브라우저 설정에서 허용해 주세요.':'현재 위치를 가져오지 못했습니다.'); geoWatch=null; geoBtn.classList.remove('on'); geoBtn.setAttribute('aria-pressed','false'); },
+    {enableHighAccuracy:true, maximumAge:10000, timeout:20000});
+});
+document.getElementById('fitBtn').addEventListener('click',()=>{ fitTo(plan.stops); });
+
+/* ===================== 바텀시트 ===================== */
+const sheet=document.getElementById('sheet'); let sheetState='peek';
+const SNAP=()=>({peek:212, half:Math.round(innerHeight*0.5), full:Math.round(innerHeight*0.88)});
+const sheetPx=()=>sheet.getBoundingClientRect().height;
+function setSheet(name){ sheetState=name; sheet.dataset.state=name; sheet.classList.remove('dragging'); sheet.style.height=SNAP()[name]+'px'; placeFabs(); }
+function placeFabs(){ const f=document.getElementById('fabs'); f.style.bottom=(SNAP()[sheetState]+14)+'px'; f.classList.toggle('hide',sheetState==='full'); }
+let drag=null;
+const handle=document.getElementById('handle'), head=document.querySelector('.sheet-head');
+function dragStart(e){ if(e.target.closest('#tl,#play,#days')) return; drag={y:e.clientY,h:sheetPx(),moved:false,fromHandle:!!e.target.closest('#handle')}; sheet.classList.add('dragging'); sheet.setPointerCapture(e.pointerId); }
+function dragMove(e){ if(!drag) return; const dy=e.clientY-drag.y; if(Math.abs(dy)>4) drag.moved=true; const h=Math.max(120,Math.min(innerHeight*0.92,drag.h-dy)); sheet.style.height=h+'px'; }
+function dragEnd(e){ if(!drag) return; const moved=drag.moved, fromHandle=drag.fromHandle; const h=sheetPx(); drag=null;
+  if(!moved){ if(fromHandle) setSheet(sheetState==='peek'?'half':sheetState==='half'?'full':'peek'); else sheet.classList.remove('dragging'); return; }
+  const s=SNAP(); const best=Object.keys(s).reduce((a,k)=>Math.abs(s[k]-h)<Math.abs(s[a]-h)?k:a,'peek'); setSheet(best); }
+[handle,head].forEach(el=>{ el.addEventListener('pointerdown',dragStart); });
+sheet.addEventListener('pointermove',dragMove); sheet.addEventListener('pointerup',dragEnd); sheet.addEventListener('pointercancel',dragEnd);
+handle.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setSheet(sheetState==='peek'?'half':sheetState==='half'?'full':'peek'); } });
+const bodyEl=document.getElementById('body'); let bodyDrag=null;
+bodyEl.addEventListener('pointerdown',e=>{ if(bodyEl.scrollTop<=0) bodyDrag={y:e.clientY,h:sheetPx()}; });
+bodyEl.addEventListener('pointermove',e=>{ if(!bodyDrag) return; const dy=e.clientY-bodyDrag.y; if(dy>10 && bodyEl.scrollTop<=0){ sheet.classList.add('dragging'); sheet.style.height=Math.max(120,bodyDrag.h-dy)+'px'; } });
+const bodyEnd=()=>{ if(!bodyDrag) return; const h=sheetPx(); bodyDrag=null; if(sheet.classList.contains('dragging')){ const s=SNAP(); const best=Object.keys(s).reduce((a,k)=>Math.abs(s[k]-h)<Math.abs(s[a]-h)?k:a,'peek'); setSheet(best); } };
+bodyEl.addEventListener('pointerup',bodyEnd); bodyEl.addEventListener('pointercancel',bodyEnd);
+addEventListener('resize',()=>setSheet(sheetState));
+
+/* ===================== 조립 ===================== */
+function recalc(){
+  stopPlay();
+  plan=buildPlan(state.day); detailPaths(plan);
+  if(curT()<plan.t0||curT()>plan.t1) setT(plan.t0);
+  renderDays(); renderChips(); renderTimeline(); renderItinerary(curT()); renderPlaceList();
+  drawRoute(); drawCats(); tick();
+  if(cardPlace) openCard(cardPlace);
+  queueLegs();
+}
+function tick(){ const t=curT(); const p=drawNow(t)||posAt(plan,t); renderStatus(t,p); document.querySelectorAll('#it li[data-s]').forEach(li=>li.classList.toggle('now', t>=+li.dataset.s && t<+li.dataset.e)); }
+
+plan=buildPlan(state.day); setSheet('peek'); renderDays(); renderCatFilter('cafe'); renderChips(); renderTimeline(); renderItinerary(curT()); renderStatus(curT(),posAt(plan,curT()));
+(async()=>{
+  const key=mapsKey();
+  if(!key){ mapError('Google Maps API 키가 주입되지 않았습니다. GitHub 저장소 Secret(GOOGLE_MAPS_API_KEY)을 등록하고 Actions로 배포한 주소(…/tokyo.html)에서 열어 주세요. 일정표는 키 없이도 아래 패널에서 볼 수 있습니다.'); return; }
+  try{ await loadGoogle(key); initMap(); recalc(); drawTrail(); renderTrailRow(); setTimeout(()=>fitTo(plan.stops),250); }
+  catch(e){ mapError(e.message==='auth'?'Google Maps API 키 인증에 실패했습니다. 키 제한(리퍼러·API)과 Maps JavaScript API 사용 설정을 확인하세요.':'Google 지도 스크립트를 불러오지 못했습니다. 네트워크를 확인하거나, 배포된 주소(https://아이디.github.io/…/tokyo.html)에서 열어 주세요.'); }
+})();
+</script>
+</body>
+</html>
